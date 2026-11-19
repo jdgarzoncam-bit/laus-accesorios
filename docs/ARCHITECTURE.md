@@ -190,3 +190,16 @@ Estas funciones podrán evaluarse después de validar el flujo principal de cat�
 - Proyecto anterior `round-wind-94330652` fue creado inicialmente en `aws-sa-east-1`; Neon Object Storage no está disponible en esa región. Se conserva sin uso por ahora; no se eliminó.
 - La rama GitHub `feat/storefront-admin-foundation` sigue siendo el único destino de desarrollo. `main` no se modifica.
 - No se han creado aún tablas de negocio ni se ha conectado el frontend; son los siguientes pasos de implementación.
+
+
+## 12. Acceso privado a LAU'S STUDIO (QA)
+
+- Proveedor: Neon Auth con Better Auth sobre la rama Neon `qa`.
+- Método de acceso: correo y contraseña; verificación de correo obligatoria.
+- UI: pantalla propia de Log in / Sign Up con estética blush y Glassmorphism, sin acceso social.
+- Flujo acordado: primera cuenta registrada y autorizada como administradora principal; dos cuentas posteriores mediante invitaciones privadas.
+- La interfaz comprueba el rol administrativo antes de renderizar el panel. Una cuenta autenticada sin rol `admin` o `owner` no accede al panel.
+- SDK integrado en el frontend: `@neondatabase/neon-js/auth`.
+- Variable frontend QA: `VITE_NEON_AUTH_URL`.
+- Estado parcial: pantalla e integración inicial de login/registro incorporadas a `feat/storefront-admin-foundation`; falta probar instalación/build y flujo real de correo.
+- Pendiente antes de declarar seguridad completa: aplicar límite autoritativo de tres administradores en backend/base de datos, cerrar registro abierto después del bootstrap inicial, implementar emisión y aceptación de invitaciones privadas, asignar rol de administrador a la primera cuenta y validar rechazo de una cuarta cuenta. El control visual de roles del frontend no sustituye estas medidas de backend.
