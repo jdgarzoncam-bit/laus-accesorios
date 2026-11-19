@@ -1,41 +1,47 @@
-# LAU'S Accesorios — Neon Data API contract (QA)
+# LAU'S Accesorios — contrato de datos Neon (QA)
 
-Base URL: `https://ep-purple-dream-bceofn8m.apirest.c-16.us-east-1.aws.neon.tech/neondb/rest/v1`
+## Servicios
 
-## Arquitectura
-- PostgreSQL gestionado por Neon.
-- REST de datos administrado por Neon Data API / PostgREST.
-- Identidad y JWT mediante Neon Auth / Better Auth.
-- RLS y GRANTs en PostgreSQL como única capa de autorización.
-- No usar la antigua Neon image-upload signer `lausapi` para operaciones de negocio.
+- Neon Data API: `https://ep-purple-dream-bceofn8m.apirest.c-16.us-east-1.aws.neon.tech/neondb/rest/v1`
+- Neon Auth: `https://ep-purple-dream-bceofn8m.neonauth.c-16.us-east-1.aws.neon.tech/neondb/auth`
+- Neon Object Storage bucket: `laus-product-images` (public_read)
+- Firmador de imágenes: `https://br-broad-block-bc99rqv7-lausimgupload.compute.c-16.us-east-1.aws.neon.tech/`
 
-## Tablas públicas y permisos
-- Lectura anónima limitada por RLS a categorías visibles, productos publicados, imágenes de productos publicados, variantes activas, colecciones/promociones vigentes y configuración pública.
-- Inserción anónima limitada a eventos de analítica permitidos.
-- Operaciones de escritura autenticadas requieren que `public.is_laus_admin()` confirme un perfil en `admin_profiles`.
-- Todas las tablas del esquema `public` tienen RLS habilitado.
+## Lecturas públicas
 
-## Operaciones
-- Catálogo: `products`, `categories`, `product_images`, `product_variants`.
-- Inventario: `inventory`, `inventory_movements`.
-- Colecciones: `collections`, `collection_products`.
-- Promociones: `promotions`, `product_promotions`.
-- Ventas: `sales`, `sale_items`.
-- Analítica: `catalog_events`.
+- `products`: solo productos publicados.
+- `categories`: categorías visibles.
+- `product_images`: claves de imágenes para construir la URL pública del bucket.
+- `product_variants`, `inventory`: opciones y existencias.
+- `promotions`, `product_promotions`: reglas y productos participantes.
+- `collections`, `collection_products`: colecciones visibles.
+- `store_settings`: datos públicos de la tienda.
+- `catalog_events`: inserción anónima limitada a los tipos permitidos.
+
+## Operaciones administrativas
+
+El cliente oficial `@neon/neon-js` envía el JWT de Neon Auth a Data API. PostgreSQL RLS permite escrituras únicamente a usuarios presentes en `admin_profiles`.
+
+- Productos: `products` y `categories`.
+- Imágenes: `product_images` después de completar la carga a Object Storage.
+- Existencias: `inventory` y `inventory_movements`.
+- Descuentos: `promotions` y `product_promotions`.
+- Colecciones: `collections` y `collection_products`.
 - Configuración: `store_settings`.
 
-## RPC transaccional pendiente
-Las operaciones que deben ser atómicas (ajustes de inventario, venta con descuento de existencias, asociaciones de campañas y generación de métricas agregadas) se implementarán como funciones PostgreSQL invocadas por `rpc()`, con validación de admin y RLS. No se deben reproducir como secuencias de escrituras independientes desde el navegador.
+## Carga segura de imágenes
 
-## Object Storage
-Bucket QA: `laus-product-images` (`public_read`). Las imágenes públicas se pueden consultar por URL; las cargas/borrados requieren URLs prefirmadas emitidas por un servicio de firma seguro. Las claves S3 jamás se incluyen en `assets/config.js` ni en JavaScript público.
+El navegador envía al firmador un JWT de Neon Auth, UUID del producto, MIME type y tamaño. El firmador consulta `admin_profiles` y verifica que el producto exista. Si está autorizado, devuelve una URL PUT firmada con expiración de cinco minutos. El navegador sube directamente el archivo a Neon Object Storage y guarda `bucket_name` y `object_key` en `product_images`.
 
-## Seguridad y límites
-- Neon Auth signup público deshabilitado.
-- Primer perfil administrador aún no provisionado.
-- Data API expone únicamente el esquema `public`.
-- La configuración actual limita CORS a localhost:5173 y localhost:8000.
-- No publicar ni cambiar `main` sin autorización expresa.
+Tipos permitidos: JPEG, PNG, WebP y AVIF. Tamaño máximo: 8 MiB. No exponer claves S3 ni credenciales de Neon en el frontend.
 
-## Estado de migración
-La Data API ya está habilitada en QA y se aplicó la migración `0003_neon_data_api_security.sql`. La integración de las pantallas nativas y la sustitución de las llamadas heredadas siguen pendientes de implementación y pruebas de navegador. La antigua Function `lausapi` queda fuera de uso para el nuevo flujo.
+## No incluido
+
+- Checkout, pagos, órdenes o compras en línea.
+- Registro de ventas desde la página.
+- API general de negocio personalizada.
+- Rutas heredadas `/api/*`.
+
+## Entorno
+
+QA: proyecto `dawn-cherry-24723488`, rama `br-broad-block-bc99rqv7`, región `aws-us-east-1`. CORS Data API está limitado a localhost:5173 y localhost:8000 hasta conocer el dominio final de publicación.
