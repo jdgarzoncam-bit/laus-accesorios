@@ -59,11 +59,11 @@ Principios:
 - Seguridad: PostgreSQL Row Level Security (RLS) en tablas expuestas; verificación de sesión Neon Auth en backend y privilegio mínimo.
 - PDF: generar desde los datos publicados y sus imágenes, con plantilla de marca; no mantener un PDF manual como segunda fuente de datos.
 - WhatsApp: construir mensaje con nombre, referencia, variante, cantidad, precio unitario y subtotal; número de destino configurado por variable de entorno.
-- QA y producción: proyectos Supabase separados cuando llegue el momento de producción. Secretos fuera del repositorio; nunca exponer service_role en frontend.
+- QA y producción: proyectos Neon separados. Secretos fuera del repositorio; nunca exponer credenciales de base de datos ni claves privilegiadas en frontend.
 
 ## 4. Modelo de datos propuesto
 
-- `profiles`: usuario administrador y rol.
+- `admin_profiles`: usuarios administradores autorizados y rol.
 - `categories`: categorías, orden y visibilidad.
 - `products`: referencia única, nombre, slug, descripción, precio COP, estado, publicación, categoría y timestamps.
 - `product_images`: producto, ruta Storage, texto alternativo y orden.
@@ -104,16 +104,16 @@ La plataforma no debe asumir que cada foto es un producto distinto: una referenc
 ## 7. Roadmap por entregas verificables
 
 ### Fase 0 — Fundaciones y entorno QA
-- Crear proyecto Neon QA, rama `qa`, habilitar Neon Auth y Object Storage.
+- Crear proyecto Neon QA, rama `qa`, habilitar Neon Auth y Object Storage. **Completado.**
 - Configurar región, URL y claves públicas; secretos en GitHub/Vercel secrets o entorno local, nunca en código.
-- Instalar cliente Supabase y configurar variables de entorno.
+- Configurar cliente Neon Auth y variables de entorno; acceso SQL de negocio a través de backend confiable.
 - Definir migraciones versionadas y separación QA/producción.
 **Aceptación:** aplicación conecta al proyecto QA; no hay secretos en Git; producción no cambia.
 
 ### Fase 1 — Datos, autenticación y Storage
-- Crear esquema, índices, restricciones, RLS y políticas.
-- Configurar bucket `laus-product-images` y permisos de lectura pública/escritura backend.
-- Configurar acceso de administrador único.
+- Crear esquema, índices, restricciones y RLS. **Esquema base aplicado en QA; faltan políticas de escritura de administrador ligadas a identidad verificada en backend.**
+- Configurar bucket `laus-product-images` y permisos de lectura pública/escritura backend. **Bucket creado; permisos de escritura backend pendientes de implementar.**
+- Configurar máximo tres administradores autorizados: primera cuenta por bootstrap y dos invitaciones privadas. **Pendiente para etapa final de seguridad.**
 **Aceptación:** visitante puede leer solo productos publicados; visitante no puede insertar/editar/borrar; administrador autenticado puede gestionar datos e imágenes.
 
 ### Fase 2 — Catálogo y carga rápida en LAUS STUDIO
@@ -163,9 +163,9 @@ La plataforma no debe asumir que cada foto es un producto distinto: una referenc
 
 ## 9. Estado actual y brechas conocidas
 
-La rama de trabajo contiene React/TypeScript/Vite y una experiencia inicial de tienda, carrito, panel administrativo y ficha visual. Sin embargo, la implementación inspeccionada aún usa datos de demostración y `localStorage`; el formulario actual de producto no es una carga real de archivos a Storage. El PDF actual invoca impresión del navegador, no un generador editorial de catálogo. El proyecto aún no incluye la integración cliente/servidor de Neon Auth, PostgreSQL y Object Storage.
+La rama de trabajo contiene React/TypeScript/Vite y una experiencia inicial de tienda, carrito, panel administrativo y ficha visual. Sin embargo, la implementación inspeccionada aún usa datos de demostración y `localStorage`; el formulario actual de producto no es una carga real de archivos a Storage. El PDF actual invoca impresión del navegador, no un generador editorial de catálogo. El proyecto incluye integración inicial de Neon Auth en frontend; la API segura de negocio y la conexión controlada a PostgreSQL/Object Storage siguen pendientes.
 
-Por tanto, estas funciones se consideran base/prototipo, no integraciones de producción. La primera tarea técnica es configurar el backend Neon QA (Auth, PostgreSQL y Storage) y migrar el catálogo a una fuente de datos centralizada.
+Por tanto, estas funciones se consideran base/prototipo, no integraciones de producción. La siguiente tarea técnica es completar la capa backend segura, migraciones versionadas, políticas de acceso y conexión de frontend a una fuente de datos centralizada.
 
 ## 10. Fuera del alcance inicial
 
@@ -203,3 +203,56 @@ Estas funciones podrán evaluarse después de validar el flujo principal de cat�
 - Variable frontend QA: `VITE_NEON_AUTH_URL`.
 - Estado parcial: pantalla e integración inicial de login/registro incorporadas a `feat/storefront-admin-foundation`; falta probar instalación/build y flujo real de correo.
 - Pendiente antes de declarar seguridad completa: aplicar límite autoritativo de tres administradores en backend/base de datos, cerrar registro abierto después del bootstrap inicial, implementar emisión y aceptación de invitaciones privadas, asignar rol de administrador a la primera cuenta y validar rechazo de una cuarta cuenta. El control visual de roles del frontend no sustituye estas medidas de backend.
+
+
+## 13. Bloque 1 — Fundación y arquitectura: avance de implementación
+
+### Infraestructura QA verificada
+- Proyecto Neon QA: `dawn-cherry-24723488`.
+- Rama Neon: `qa` / `br-broad-block-bc99rqv7`, estado `ready`.
+- Neon Auth Better Auth habilitado.
+- Bucket `laus-product-images` creado con lectura pública.
+- No se han creado usuarios administradores ni se ha ejecutado el bootstrap; se aplaza hasta completar la plataforma por decisión del usuario.
+
+### Esquema de negocio aplicado en QA
+Migración versionada: `db/migrations/0001_laus_foundation.sql`.
+
+Tablas:
+- `categories`, `products`, `product_images`, `product_variants`.
+- `inventory`, `inventory_movements`.
+- `collections`, `collection_products`.
+- `promotions`, `product_promotions`.
+- `catalog_events`, `admin_profiles`.
+
+Reglas implementadas:
+- Referencia de producto única.
+- Precio COP entero no negativo.
+- Estados de producto draft/published/archived.
+- Inventario no negativo, con soporte de variante y movimientos auditables.
+- Promociones con vigencia y validación de porcentajes.
+- RLS activado en todas las tablas de negocio.
+- Lectura pública limitada a categorías visibles, productos publicados, colecciones y promociones activas.
+- Trigger transaccional con advisory lock que impide insertar un cuarto perfil administrador.
+
+Pendiente de seguridad antes de usar datos reales:
+- Verificar cómo el backend establece de forma confiable el contexto de identidad después de validar JWT.
+- Añadir políticas de escritura administrativa con ese contexto.
+- Separar un rol SQL de runtime sin privilegios de propietario/bypass RLS.
+- Proteger el bucket contra escritura directa pública y generar cargas firmadas desde backend.
+- Completar pruebas negativas de lectura y escritura.
+
+### Diseño de interfaz — fundación
+Documento: `docs/DESIGN_SYSTEM.md`.
+- Paleta blush, rose, coral, grafito y blanco cálido.
+- Tipografías Sora y DM Sans.
+- Tokens, radios, superficies, botones, campos y estados compartidos.
+- Glassmorphism reservado para capas de enfoque; se prioriza legibilidad en paneles de datos.
+
+### Criterios de cierre del Bloque 1
+1. Migración versionada reproducible en QA.
+2. API backend verifica JWT de Neon Auth y aplica autorización por rol.
+3. RLS impide escritura anónima y escritura de usuarios no autorizados.
+4. Upload de imágenes sólo desde backend autorizado.
+5. Variables/secretos QA separados y ausentes del repositorio.
+6. Pruebas de acceso público, administrador y usuario no autorizado.
+7. Diseño base responsive validado antes de pasar al Bloque 2.
