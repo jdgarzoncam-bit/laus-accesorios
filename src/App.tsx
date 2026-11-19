@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { CSSProperties, Dispatch, ReactNode, SetStateAction } from 'react'
 import { ArrowDown, ArrowRight, ArrowUpRight, Bag, ChartNoAxesCombined, Check, CircleHelp, Cloud, Download, Heart, LayoutDashboard, Menu, MessageCircle, Package, Plus, Search, Settings, ShoppingBag, Sparkles, Tag, Trash2, Truck, X } from 'lucide-react'
 
 type Category = 'Todos' | 'Aretes' | 'Collares' | 'Pulseras' | 'Conjuntos' | 'Ropa'
@@ -45,7 +46,7 @@ export default function App() {
     const p:Product={id:`LA-${String(Date.now()).slice(-6)}`,name:form.name,category:form.category,price:Number(form.price),stock:Number(form.stock)||0,image:form.image,description:form.description}
     setProducts(old=>[p,...old]);setForm({name:'',category:'Aretes',price:'',stock:'',image:'',description:''});setNotice('Producto guardado en este navegador.')
   }
-  const downloadCatalog = () => window.print()
+  const downloadCatalog = () => {\n    const popup=window.open('', '_blank');\n    if(!popup){setNotice('Permite las ventanas emergentes para generar el catálogo.');return}\n    const safe=(value:string)=>value.replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[ch]||ch));\n    const cards=products.map(p=>\`<article><img src=\"\${safe(p.image)}\" alt=\"\${safe(p.name)}\"><small>\${safe(p.category)}</small><h2>\${safe(p.name)}</h2><b>\${money(p.price)}</b><p>\${safe(p.description)}</p><span>\${p.stock>0?'Disponible':'Agotado'}</span></article>\`).join('');\n    popup.document.write(\`<!doctype html><html lang=\"es\"><head><meta charset=\"utf-8\"><title>Catálogo Lau's Accesorios</title><style>body{font-family:Arial,sans-serif;color:#30292d;padding:28px}header{border-bottom:2px solid #e9b9c4;margin-bottom:24px;padding-bottom:12px}h1{font-size:28px;margin:0}header p{color:#927b83}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}article{break-inside:avoid;border:1px solid #eadfe1;border-radius:12px;padding:10px}img{width:100%;height:190px;object-fit:cover;border-radius:8px}small,span{color:#987c85;font-size:11px}h2{font-size:15px;margin:7px 0}b{font-size:13px}p{font-size:11px;color:#7d7074}@media print{body{padding:0}.grid{gap:10px}}@media(max-width:650px){.grid{grid-template-columns:repeat(2,1fr)}}</style></head><body><header><h1>Lau's Accesorios</h1><p>Catálogo de joyas, accesorios y moda · Precios en COP</p></header><main class=\"grid\">\${cards}</main><script>window.onload=()=>window.print()<\/script></body></html>\`);\n    popup.document.close();\n  }
   const categories:Category[]=['Todos','Aretes','Collares','Pulseras','Conjuntos','Ropa']
   return <div className="app-shell">
     <div className="announcement">UN PEQUEÑO DETALLE, UNA GRAN FORMA DE BRILLAR <Sparkles size={13}/></div>
@@ -70,7 +71,7 @@ export default function App() {
         <section className="catalog-section" id="coleccion">
           <div className="section-heading"><div><span className="eyebrow">ENCUENTRA TU FAVORITO</span><h2>Una colección <i>para ti.</i></h2></div><label className="search-box"><Search size={17}/><input id="catalog-search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar joyas, accesorios..."/></label></div>
           <div className="category-row">{categories.map(c=><button key={c} className={category===c?'category-chip active':'category-chip'} onClick={()=>setCategory(c)}>{c}<span>↗</span></button>)}</div>
-          <div className="product-grid">{visible.map((p,i)=><article className="product-card" key={p.id} style={{'--delay':`${i*60}ms`} as React.CSSProperties}><div className="product-photo"><img src={p.image} alt={p.name}/>{p.badge&&<span className="product-badge">{p.badge}</span>}<button className="quick-add" onClick={()=>add(p)} aria-label={`Agregar ${p.name}`}><Plus size={18}/></button></div><div className="product-meta"><div><span className="product-category">{p.category}</span><h3>{p.name}</h3></div><strong>{money(p.price)}</strong></div><span className={p.stock>0?'stock in-stock':'stock out-stock'}>{p.stock>0?`Disponible · ${p.stock} unidades`:'Agotado · Consulta disponibilidad'}</span></article>)}</div>
+          <div className="product-grid">{visible.map((p,i)=><article className="product-card" key={p.id} style={{'--delay':`${i*60}ms`} as CSSProperties}><div className="product-photo"><img src={p.image} alt={p.name}/>{p.badge&&<span className="product-badge">{p.badge}</span>}<button className="quick-add" onClick={()=>add(p)} aria-label={`Agregar ${p.name}`}><Plus size={18}/></button></div><div className="product-meta"><div><span className="product-category">{p.category}</span><h3>{p.name}</h3></div><strong>{money(p.price)}</strong></div><span className={p.stock>0?'stock in-stock':'stock out-stock'}>{p.stock>0?`Disponible · ${p.stock} unidades`:'Agotado · Consulta disponibilidad'}</span></article>)}</div>
           {visible.length===0&&<div className="empty-state">No encontramos productos con esa búsqueda. Prueba otra palabra.</div>}
         </section>
         <section className="promo-band"><div><span className="eyebrow">UN TOQUE EXTRA DE MAGIA</span><h2>Tu estilo,<br/><i>tu universo.</i></h2><p>Combina, juega y encuentra piezas que hablen de ti.</p><a href="#coleccion" className="light-pill">Ver colección <ArrowRight size={16}/></a></div><div className="promo-orb">✧</div></section>
@@ -83,7 +84,7 @@ export default function App() {
   </div>
 }
 
-function Admin({products,setProducts,activeTab,setActiveTab,form,setForm,saveProduct,downloadCatalog,onExit}:{products:Product[];setProducts:React.Dispatch<React.SetStateAction<Product[]>>;activeTab:string;setActiveTab:(s:string)=>void;form:{name:string;category:Product['category'];price:string;stock:string;image:string;description:string};setForm:React.Dispatch<React.SetStateAction<typeof form>>;saveProduct:()=>void;downloadCatalog:()=>void;onExit:()=>void}) {
+function Admin({products,setProducts,activeTab,setActiveTab,form,setForm,saveProduct,downloadCatalog,onExit}:{products:Product[];setProducts:Dispatch<SetStateAction<Product[]>>;activeTab:string;setActiveTab:(s:string)=>void;form:{name:string;category:Product['category'];price:string;stock:string;image:string;description:string};setForm:Dispatch<SetStateAction<typeof form>>;saveProduct:()=>void;downloadCatalog:()=>void;onExit:()=>void}) {
  const [adding,setAdding]=useState(false)
  const nav=[['Resumen',LayoutDashboard],['Productos',Package],['Inventario',Bag],['Promociones',Tag],['Estadísticas',ChartNoAxesCombined],['Configuración',Settings]] as const
  const low=products.filter(p=>p.stock>0&&p.stock<=3).length, out=products.filter(p=>p.stock===0).length
@@ -96,4 +97,4 @@ function Admin({products,setProducts,activeTab,setActiveTab,form,setForm,savePro
  {activeTab==='Configuración'&&<div className="admin-panel"><span className="eyebrow">AJUSTES</span><h3>Configuración de Lau's</h3><p>El número de WhatsApp se configura mediante la variable VITE_WHATSAPP_NUMBER. La autenticación segura y la sincronización en la nube se conectarán antes de publicar el panel.</p><button className="outline-btn" onClick={downloadCatalog}><Download size={16}/> Generar catálogo PDF</button></div>}
  </section></div>
 }
-function Kpi({title,value,note,icon}:{title:string;value:string;note:string;icon:React.ReactNode}){return <div className="kpi-card"><div className="kpi-top"><span>{title}</span>{icon}</div><strong>{value}</strong><small>{note}</small></div>}
+function Kpi({title,value,note,icon}:{title:string;value:string;note:string;icon:ReactNode}){return <div className="kpi-card"><div className="kpi-top"><span>{title}</span>{icon}</div><strong>{value}</strong><small>{note}</small></div>}
