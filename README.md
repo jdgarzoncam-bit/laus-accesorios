@@ -52,15 +52,17 @@ La tienda y el panel consumirán Neon Data API por HTTPS. La integración nativa
 
 El PDF de catálogo es la fuente para importar productos, imágenes, precios y referencias. No se debe copiar su diseño como diseño de la tienda. Los productos demo no representan el inventario real.
 
-## Neon QA API
+## Neon Data API QA
 
-- Function: `lausapi`
-- URL: `https://br-broad-block-bc99rqv7-lausapi.compute.c-16.us-east-1.aws.neon.tech`
-- Deployment: Node.js 24, deployment 4 (QA only).
-- Public routes: `GET /api/health`, `GET /api/products`, `GET /api/categories`, `POST /api/events`.
-- Admin routes: session/auth proxy, products/categories, inventory adjustments, collections, promotions, sales, image upload tickets and image deletion.
-- Admin signup is disabled on Neon Auth QA. No administrator profile/user has been created yet; the first admin must be provisioned explicitly.
-- The function uses branch-injected Neon environment variables for PostgreSQL, Neon Auth and Object Storage credentials; secrets are not embedded in the frontend.
+- Branch: `br-broad-block-bc99rqv7` (QA only).
+- Data API: `https://ep-purple-dream-bceofn8m.apirest.c-16.us-east-1.aws.neon.tech/neondb/rest/v1`.
+- Authentication provider: Neon Auth / Better Auth.
+- Exposed schema: `public`; anonymous role: `anonymous`; broad default grants disabled.
+- RLS is enabled on all 15 public tables. Public read access is restricted to catalog data; authenticated writes require `public.is_laus_admin()`.
+- The former `lausapi` Neon Function is deprecated and must not be used by the frontend.
+- Public sign-up remains disabled. The first administrator profile has not been provisioned.
+- Object Storage bucket: `laus-product-images` (`public_read`). Uploads still require short-lived signed URLs; storage credentials must never be exposed in browser code.
+
 
 ## Current implementation boundaries
 
