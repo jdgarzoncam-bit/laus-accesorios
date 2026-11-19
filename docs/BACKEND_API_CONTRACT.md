@@ -31,3 +31,14 @@ Base URL: `https://br-broad-block-bc99rqv7-lausapi.compute.c-16.us-east-1.aws.ne
 - Neon Auth QA email/password signups are disabled. First administrator provisioning is a controlled manual step.
 - CORS permits localhost/127.0.0.1 for QA. Before hosting the frontend, set the function's `APP_ORIGIN` to the exact HTTPS origin and add that origin to Neon Auth trusted origins.
 - This function and API URL target QA only. Production branch is not modified.
+
+
+## Rutas añadidas en el código QA (pendientes de despliegue)
+
+- `GET /api/collections` y `GET /api/promotions`: colecciones y promociones activas, con productos publicados asociados.
+- `GET /api/store-config`: datos públicos de la tienda.
+- `GET|PUT /api/admin/settings`: lectura y edición protegida de datos comerciales.
+- `GET|POST /api/admin/products/:id/variants` y `PATCH /api/admin/variants/:id`: variantes y tallas.
+- `GET /api/admin/analytics-series?days=30`: serie diaria de visitas/clics y ranking por categoría.
+
+**Importante:** estas rutas están en la rama GitHub QA y pasan revisión sintáctica, pero no deben considerarse operativas hasta desplegar el bundle corregido y probar HTTP contra la Function activa.
