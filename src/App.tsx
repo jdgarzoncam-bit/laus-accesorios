@@ -1,3 +1,4 @@
+import AuthGate from './AuthGate'
 import { useEffect, useMemo, useState } from 'react'
 import type { CSSProperties, Dispatch, ReactNode, SetStateAction } from 'react'
 import { ArrowDown, ArrowRight, ArrowUpRight, ChartNoAxesCombined, Check, CircleHelp, Cloud, Download, Heart, LayoutDashboard, Menu, MessageCircle, Package, Play, Plus, Search, Settings, ShoppingBag, Sprout, Sparkles, Tag, Trash2, Truck, X } from 'lucide-react'
@@ -87,7 +88,7 @@ export default function App() {
         <section className="story-section" id="historia"><span className="eyebrow">HOLA, SOMOS LAU'S</span><h2>La belleza está<br/>en los <i>detalles.</i></h2><p>Creemos en esos pequeños acentos que transforman un día común en uno especial. Encuentra aquí piezas para expresar tu esencia.</p></section>
       </main>
       <footer><a className="wordmark" href="#">Lau's<span>Accesorios</span><i>✳</i></a><span>Brilla a tu manera. © {new Date().getFullYear()} Lau's Accesorios</span><div><a href="#coleccion">Colección</a><a href="#historia">Nosotros</a><a href="https://wa.link/3ozvv4" target="_blank" rel="noreferrer">WhatsApp</a><button onClick={()=>setShowAdmin(true)}>Administración</button></div></footer>
-    </> : <Admin products={products} setProducts={setProducts} activeTab={activeTab} setActiveTab={setActiveTab} form={form} setForm={setForm} saveProduct={saveProduct} downloadCatalog={downloadCatalog} onExit={()=>setShowAdmin(false)}/>}
+    </> : <AuthGate onClose={()=>setShowAdmin(false)}><Admin products={products} setProducts={setProducts} activeTab={activeTab} setActiveTab={setActiveTab} form={form} setForm={setForm} saveProduct={saveProduct} downloadCatalog={downloadCatalog} onExit={()=>setShowAdmin(false)}/></AuthGate>}
     </div>
     {selectedProduct&&<div className="product-lightbox" role="presentation" onClick={()=>setSelectedProduct(null)}>
       <div className="lightbox-halo" aria-hidden="true"></div>
