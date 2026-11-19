@@ -1,0 +1,19 @@
+/* LAU'S shared UI foundation — block 1 */
+:root{
+ --laus-canvas:#FBF7F6;--laus-surface:#FFFFFF;--laus-surface-soft:#FDF3F3;
+ --laus-blush:#E9B9C4;--laus-rose:#D98998;--laus-coral:#D77D82;--laus-pale:#F5DFE1;
+ --laus-ink:#30292D;--laus-muted:#8E7F83;--laus-line:#EADFE1;
+ --laus-radius-sm:12px;--laus-radius-md:18px;--laus-radius-lg:28px;
+ --laus-shadow-card:0 12px 34px rgba(70,45,55,.07);
+ --laus-shadow-float:0 24px 70px rgba(70,45,55,.16);
+ --laus-focus:0 0 0 3px rgba(217,137,152,.28);
+ color-scheme:light;
+}
+::selection{background:var(--laus-blush);color:var(--laus-ink)}
+:focus-visible{outline:none;box-shadow:var(--laus-focus)}
+button:disabled{cursor:not-allowed;opacity:.55}
+input,select,textarea{accent-color:var(--laus-rose)}
+img{max-width:100%}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
