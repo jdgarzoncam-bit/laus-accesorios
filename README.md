@@ -1,24 +1,53 @@
-# Lau's Accesorios
+# LAU'S Accesorios
 
-Tienda digital de joyería, accesorios y moda. Experiencia visual juvenil con estética dreamy 3D, rosa editorial y glassmorphism.
+Tienda digital de joyería, accesorios y moda. Frontend nativo, responsive y sin proceso de compilación.
 
-## Desarrollo
-- Rama principal: `main`
-- Rama de trabajo inicial: `feat/storefront-admin-foundation`
-- Aplicación: React + TypeScript + Vite
-- Calidad: Vitest + GitHub Actions
+## Arquitectura actual
 
-## Alcance
-- Tienda pública responsive con catálogo, categorías, ficha de producto y carrito.
-- Pedidos enviados a WhatsApp, sin registro obligatorio ni pasarela de pago en la primera versión.
-- Panel administrativo protegido para productos, variantes, inventario, promociones y analítica.
-- Generación de catálogo PDF.
+- **Tienda pública:** HTML5, CSS3 y JavaScript ES6 en `index.html`.
+- **Panel privado:** LAU'S STUDIO en `admin.html`.
+- **Estilos y lógica:** `assets/`.
+- **Backend:** Neon Functions (Node.js 24) + PostgreSQL.
+- **Imágenes:** Neon Object Storage.
+- **Repositorio:** GitHub.
 
-Las integraciones de base de datos, autenticación y almacenamiento se configurarán antes de publicar datos reales.
+El navegador no requiere React, TypeScript, Vite, npm ni Node.js para ejecutar el frontend.
 
-## Referencia de catálogo
-- Catálogo de Canva: https://www.canva.com/design/DAHRiD8f5Q0/LqmjtwGjdm4Y1w9iM613pg/edit
-- Documento consultado: 230 páginas.
-- Categorías del índice: Entrega inmediata (p. 3), Candongas y aretes (p. 8), Topitos (p. 28), Anillos (p. 71), Cuelga gafas (p. 86), Collares y pulseras con iniciales (p. 91), Cadenas y collares (p. 93), Conjuntos (p. 160), Pulseras y botilleras (p. 185), Earcuff (p. 226).
-- Contacto/compra del catálogo: https://wa.link/3ozvv4
-- La lista definitiva de productos, imágenes y precios todavía debe importarse desde el catálogo; los productos de demostración existentes no representan el inventario real.
+## Prueba local en Windows
+
+1. Descarga el ZIP de la rama `feat/storefront-admin-foundation`.
+2. Descomprime el proyecto.
+3. Abre PowerShell en la carpeta.
+4. Ejecuta:
+
+```powershell
+py -m http.server 5173
+```
+
+5. Abre `http://localhost:5173` para la tienda o `http://localhost:5173/admin.html` para el panel.
+
+También puedes usar VS Code Live Server abriendo `index.html`.
+
+## Módulos de LAU'S STUDIO
+
+- Dashboard: visitantes, clics a WhatsApp, producto y categoría más vistos.
+- Ventas: registro manual e historial.
+- Catálogo: productos, categorías, precios y fotografías.
+- Inventario: existencias y movimientos.
+- Promociones y colecciones.
+- Analítica e informes.
+- Configuración y acceso administrativo.
+
+## Estado funcional
+
+Las vistas y controles de navegación son interfaz de trabajo. Los productos que se ven actualmente son datos de demostración. El frontend todavía no debe utilizarse para administrar inventario real hasta completar el despliegue de la API, autorización de administradores, persistencia de productos y conexión a Object Storage. El prototipo registra eventos localmente si no existe una URL API configurada; esto no equivale a analítica centralizada.
+
+## QA y producción
+
+- Rama de desarrollo: `feat/storefront-admin-foundation`.
+- Neon QA: proyecto `laus-accesorios-qa`, rama `qa`.
+- Producción `main` permanece intacta y requiere autorización expresa para cualquier despliegue.
+
+## Catálogo de referencia
+
+El PDF de catálogo es la fuente para importar productos, imágenes, precios y referencias. No se debe copiar su diseño como diseño de la tienda. Los productos demo no representan el inventario real.
