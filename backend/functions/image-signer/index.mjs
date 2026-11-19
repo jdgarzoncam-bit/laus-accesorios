@@ -15,9 +15,8 @@ const handler={async fetch(request){
   const allowed={"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/avif":"avif"};
   if(!allowed[contentType]||Number(body.size||0)>8*1024*1024)return json({error:"invalid_image"},400);
   const api=process.env.LAUS_DATA_API_URL;
-  const check=await fetch(api+"/admin_profiles?select=user_id",{headers:{authorization:auth,accept:"application/json"}});
-  if(!check.ok)return json({error:"admin_auth_required"},403);
-  const profiles=await check.json();if(!Array.isArray(profiles)||!profiles.length)return json({error:"admin_required"},403);
+  const token=auth.slice(7),parts=token.split(".");if(parts.length!==3)return json({error:"invalid_session"},401);let claims;try{claims=JSON.parse(atob(parts[1].replace(/-/g,"+").replace(/_/g,"/")))}catch{return json({error:"invalid_session"},401)}if(!claims.sub)return json({error:"login_required"},401);
+  const check=await fetch(api+"/products?select=id&limit=1",{headers:{authorization:auth,accept:"application/json"}});if(!check.ok)return json({error:"invalid_session"},401);
   const product=await fetch(api+"/products?id=eq."+encodeURIComponent(productId)+"&select=id",{headers:{authorization:auth,accept:"application/json"}});
   const productRows=await product.json();if(!product.ok||!productRows?.length)return json({error:"product_not_found"},404);
   const bucket="laus-product-images",key="products/"+productId+"/"+crypto.randomUUID()+"."+allowed[contentType];
