@@ -4,7 +4,7 @@
 **Entorno objetivo:** Neon QA, rama `qa`.  
 **No contiene secretos ni credenciales.**
 
-## 1. Principios obligatorios
+## 1. Arquitectura elegida: API alojada en Neon Functions\n\nLa API se desplegará como **Neon Functions** en la misma rama Neon QA que aloja PostgreSQL, no en Vercel ni en un servidor externo. Neon Functions ejecuta funciones serverless Node.js 24 junto a la base de datos y ofrece URL de invocación HTTPS. Se recomienda Hono como router HTTP. La documentación oficial describe despliegue por CLI o API, variables de entorno de función y límites de ejecución. La cuenta/proyecto QA no tiene funciones desplegadas todavía: la consulta de funciones devolvió una lista vacía.\n\nLa función tendrá rutas agrupadas bajo `/api` y utilizará la conexión PostgreSQL de Neon con rol de runtime de privilegios mínimos. Las variables privadas se configuran en el despliegue de Neon Functions; nunca se compilan dentro de React ni se exponen mediante `VITE_`. La función se versiona en este repositorio y se despliega exclusivamente en la rama `qa`.\n\n## 2. Principios obligatorios
 
 - El navegador nunca recibe una cadena de conexión privilegiada, credenciales S3, claves privadas ni tokens de administrador.
 - El servidor valida la sesión de Neon Auth en cada solicitud protegida. No acepta un `user_id`, `role` o `is_admin` enviado por el cliente como prueba de identidad.
@@ -14,7 +14,7 @@
 - El bucket de imágenes permite lectura pública de objetos publicados, pero no escritura pública.
 - Las operaciones de inventario deben ser transaccionales y generar un movimiento auditable.
 
-## 2. Endpoints previstos
+## 3. Endpoints previstos
 
 | Método y ruta | Acceso | Responsabilidad |
 |---|---|---|
@@ -33,7 +33,7 @@
 
 Las rutas son un contrato funcional; no deben considerarse endpoints ya desplegados.
 
-## 3. Validación de sesión y permisos
+## 4. Validación de sesión y permisos
 
 1. Leer la cookie de sesión de la solicitud entrante.
 2. Validar la sesión contra Neon Auth/Better Auth en el servidor, usando el mecanismo oficial de verificación para el proyecto y la versión configurada.
@@ -45,7 +45,7 @@ Las rutas son un contrato funcional; no deben considerarse endpoints ya desplega
 
 **Bloqueante:** antes de escribir middleware debe confirmarse el método exacto de validación de sesión de Neon Auth para el dominio QA, el formato de cookies y el entorno de despliegue elegido. No se debe inventar un endpoint JWKS ni asumir que un token Better Auth es un JWT verificable localmente.
 
-## 4. Carga de imágenes
+## 5. Carga de imágenes
 
 - Permitir JPEG, PNG y WebP; rechazar SVG y archivos ejecutables.
 - Definir límite de tamaño y dimensiones en servidor.
@@ -57,7 +57,7 @@ Las rutas son un contrato funcional; no deben considerarse endpoints ya desplega
 
 **Bloqueante:** confirmar el método de firma y el SDK/API disponible para Neon Object Storage en la región del proyecto. No exponer claves S3 en variables `VITE_*`.
 
-## 5. RLS y roles SQL
+## 6. RLS y roles SQL
 
 Antes de activar escrituras:
 
@@ -71,11 +71,11 @@ Antes de activar escrituras:
 
 No usar `SET request.jwt.claim.sub` con valores recibidos directamente del navegador. Un valor de sesión sólo es confiable después de validarlo en el backend y establecerlo dentro de una transacción controlada.
 
-## 6. Límite de administradores
+## 7. Límite de administradores
 
 El trigger existente limita los perfiles a tres, pero no implementa por sí solo invitaciones ni controla el registro en Neon Auth. El alta debe ejecutarse desde un proceso backend restringido: verificar invitación, crear/validar usuario, insertar perfil en transacción y auditar la acción. No crear todavía el usuario bootstrap hasta que el propietario lo autorice.
 
-## 7. Pruebas de aceptación
+## 8. Pruebas de aceptación
 
 - Sin sesión: GET público funciona sólo para catálogo publicado; todas las rutas admin responden 401.
 - Sesión válida sin perfil admin: rutas admin responden 403.
