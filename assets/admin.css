@@ -9,3 +9,5 @@
 .edit-dialog{border:1px solid #fff;border-radius:22px;padding:24px;width:min(540px,calc(100% - 28px));max-height:85vh;overflow:auto;box-shadow:0 25px 80px #46333b33}
 .edit-dialog::backdrop{background:#30292d66;backdrop-filter:blur(5px)}
 @media(max-width:640px){.campaign-admin-row{align-items:flex-start;flex-direction:column}.campaign-admin-row button{width:100%}}
+
+.variant-create{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.variant-create select,.variant-create input{min-width:0;padding:10px;border:1px solid #eadfe1;border-radius:10px}.variant-create button{grid-column:1/-1;padding:10px;border:0;border-radius:10px;background:#f5e5e9;color:#775c65;cursor:pointer}.report-actions{display:flex;gap:10px;flex-wrap:wrap}
