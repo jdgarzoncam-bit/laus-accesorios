@@ -1,4 +1,4 @@
-name: Quality checks
+name: Quality checks and QA package
 on:
   push:
     branches: [main, 'feat/**']
@@ -12,5 +12,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install
-      - run: npm run build
+          cache: npm
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run tests
+        run: npm run test -- --passWithNoTests
+      - name: Build production bundle
+        run: npm run build
+      - name: Package source for local QA
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/')
+        run: |
+          zip -r laus-accesorios-qa.zip . \
+            -x 'node_modules/*' '.git/*' '.github/*' \
+               'dist/*' '.env' '.env.local' '.env.*.local' \
+               'coverage/*' '*.log'
+      - name: Upload local QA ZIP
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: laus-accesorios-qa
+          path: laus-accesorios-qa.zip
+          if-no-files-found: error
+          retention-days: 14
