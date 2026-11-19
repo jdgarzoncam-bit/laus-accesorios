@@ -15,3 +15,5 @@
 .settings-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}.settings-form label{display:grid;gap:7px;font-size:11px;color:#75666b}.settings-form input,.settings-form textarea{width:100%;min-width:0;padding:12px 13px;border:1px solid #eadfe1;border-radius:11px;background:#fff;color:#30292d;font:13px "DM Sans",sans-serif}.settings-form label:nth-child(4){grid-column:1/-1}.settings-form button,.settings-form .note{grid-column:1/-1}@media(max-width:700px){.settings-form{grid-template-columns:1fr}.settings-form label:nth-child(4){grid-column:auto}}
 
 dialog#inventory-modal,dialog#collection-modal,dialog#promotion-modal{border:0;padding:0;background:transparent;max-width:min(560px,calc(100% - 24px));max-height:88vh}dialog#inventory-modal::backdrop,dialog#collection-modal::backdrop,dialog#promotion-modal::backdrop{background:#30292d66;backdrop-filter:blur(5px)}.check-label{display:flex!important;align-items:center;gap:8px}
+
+.catalog-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.catalog-actions button{white-space:nowrap}@media(max-width:640px){.catalog-actions{width:100%}.catalog-actions button{flex:1}}
