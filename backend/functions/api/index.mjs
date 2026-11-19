@@ -3,7 +3,7 @@ import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, PutB
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 const { Pool } = pg;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5, idleTimeoutMillis: 30000 });
-const authBase = process.env.NEON_AUTH_BASE_URL || process.env.NEON_AUTH_BASE_URL;
+const authBase = process.env.NEON_AUTH_BASE_URL || process.env.BETTER_AUTH_URL || "";
 const bucket = "laus-product-images";
 const s3 = process.env.AWS_ENDPOINT_URL_S3 ? new S3Client({region:process.env.AWS_REGION||"us-east-1",endpoint:process.env.AWS_ENDPOINT_URL_S3,forcePathStyle:true,credentials:{accessKeyId:process.env.AWS_ACCESS_KEY_ID,secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY}}) : null;
 const allowedEvents = new Set(["store_visit","product_view","search","add_to_cart","whatsapp_click","pdf_download"]);
