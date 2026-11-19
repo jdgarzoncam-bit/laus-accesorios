@@ -81,3 +81,50 @@ footer{border-radius:0}
  .app-shell{padding:0;background:white}
  .site-frame{box-shadow:none;border-radius:0}
 }
+
+/* Product spotlight: glassmorphism card with a soft circular blur */
+.product-lightbox{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;padding:24px;background:rgba(42,34,42,.22);backdrop-filter:blur(10px) saturate(115%);-webkit-backdrop-filter:blur(10px) saturate(115%);animation:lightboxFade .32s ease both;isolation:isolate}
+.lightbox-halo{position:absolute;z-index:-1;width:min(78vw,720px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,221,239,.72) 0%,rgba(235,173,207,.48) 34%,rgba(217,155,191,.18) 58%,transparent 72%);filter:blur(35px);pointer-events:none;animation:haloBloom .55s cubic-bezier(.2,.8,.2,1) both}
+.product-glass-card{position:relative;width:min(430px,calc(100vw - 36px));max-height:min(88vh,820px);overflow-y:auto;border:1px solid rgba(255,255,255,.46);border-radius:34px;padding:13px;background:linear-gradient(145deg,rgba(255,255,255,.48),rgba(255,239,246,.23) 42%,rgba(74,63,74,.36));box-shadow:0 28px 90px rgba(38,22,37,.3),inset 0 1px 0 rgba(255,255,255,.62);backdrop-filter:blur(28px) saturate(145%);-webkit-backdrop-filter:blur(28px) saturate(145%);animation:glassCardIn .48s cubic-bezier(.18,.78,.22,1) both;transform-origin:center}
+.glass-close{position:absolute;z-index:3;top:23px;right:23px;width:38px;height:38px;border:1px solid rgba(255,255,255,.58);border-radius:50%;display:grid;place-items:center;color:#fff;background:rgba(40,34,40,.36);backdrop-filter:blur(12px);cursor:pointer;transition:transform .2s,background .2s}
+.glass-close:hover{transform:rotate(90deg);background:rgba(40,34,40,.58)}
+.glass-image-wrap{height:clamp(190px,32vh,270px);position:relative;overflow:hidden;border-radius:25px;background:linear-gradient(135deg,#f4dce5,#c9a8b6)}
+.glass-image-wrap:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(42,31,39,.24));pointer-events:none}
+.glass-image-wrap img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.product-glass-card:hover .glass-image-wrap img{transform:scale(1.035)}
+.glass-badge{position:absolute;z-index:1;left:15px;bottom:14px;padding:7px 11px;border:1px solid #ffffff7a;border-radius:30px;background:#ffffff42;color:white;font-size:10px;letter-spacing:.08em;text-transform:uppercase;backdrop-filter:blur(12px)}
+.glass-content{padding:22px 19px 17px;color:#fff}
+.glass-content .eyebrow{color:rgba(255,255,255,.76);font-size:9px;letter-spacing:.16em}
+.glass-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-top:10px}
+.glass-title-row h2{font-family:Sora,sans-serif;font-size:clamp(21px,4vw,27px);line-height:1.15;letter-spacing:-.045em;margin:0;color:#fff}
+.glass-title-row strong{font-size:17px;white-space:nowrap;color:#fff}
+.glass-content>p{margin:12px 0 17px;color:rgba(255,255,255,.82);font-size:13px;line-height:1.65}
+.glass-stock{display:flex;align-items:center;gap:9px;padding:13px 0;border-top:1px solid rgba(255,255,255,.24);border-bottom:1px solid rgba(255,255,255,.24);font-size:12px;color:rgba(255,255,255,.9)}
+.stock-dot{width:7px;height:7px;border-radius:50%;background:#a7e5c1;box-shadow:0 0 10px #a7e5c1}
+.stock-dot.unavailable{background:#ffc4d5;box-shadow:0 0 10px #ffc4d5}
+.glass-sizes{padding:13px 0;color:white;font-size:12px}
+.glass-sizes>div{display:flex;gap:8px;margin-top:9px}
+.glass-sizes>div span{width:32px;height:32px;border-radius:50%;border:1px solid #ffffff80;display:grid;place-items:center;background:#ffffff20}
+.glass-primary,.glass-secondary{width:100%;min-height:47px;border:0;border-radius:30px;display:flex;align-items:center;justify-content:center;gap:10px;font:600 12px 'DM Sans',sans-serif;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s}
+.glass-primary{margin-top:17px;background:#fff;color:#51434d;box-shadow:0 8px 25px #39283830}
+.glass-primary:hover{transform:translateY(-2px);box-shadow:0 12px 28px #39283845}
+.glass-secondary{margin-top:9px;background:rgba(38,32,39,.24);border:1px solid rgba(255,255,255,.3);color:#fff}
+.glass-secondary:hover{background:rgba(38,32,39,.38)}
+.product-card{cursor:pointer}
+.product-card:focus-visible{outline:2px solid #d98998;outline-offset:4px}
+@keyframes lightboxFade{from{opacity:0}to{opacity:1}}
+@keyframes haloBloom{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:scale(1)}}
+@keyframes glassCardIn{from{opacity:0;transform:translateY(22px) scale(.92);filter:blur(9px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+@media(max-width:600px){
+ .product-lightbox{padding:16px 12px}
+ .lightbox-halo{width:115vw;filter:blur(28px)}
+ .product-glass-card{width:min(390px,calc(100vw - 26px));max-height:88dvh;border-radius:29px;padding:10px}
+ .glass-image-wrap{height:clamp(175px,28vh,235px);border-radius:21px}
+ .glass-content{padding:18px 14px 13px}
+ .glass-title-row h2{font-size:22px}
+ .glass-title-row strong{font-size:15px}
+}
+@media(prefers-reduced-motion:reduce){
+ .product-lightbox,.lightbox-halo,.product-glass-card{animation:none!important}
+ .glass-image-wrap img,.glass-primary,.glass-secondary,.glass-close{transition:none!important}
+}
