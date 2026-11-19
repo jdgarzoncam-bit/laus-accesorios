@@ -16,7 +16,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "vite": "^6.0.5",
-    "@neondatabase/neon-js": "^0.2.0"
+    "@neondatabase/neon-js": "latest"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",
