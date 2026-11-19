@@ -52,7 +52,9 @@ Principios:
 ## 3. Arquitectura técnica propuesta
 
 - Frontend: HTML5 + CSS3 + JavaScript ES2022 nativo; archivos estáticos servidos por cualquier hosting/CDN. No requiere React, TypeScript, Vite, npm ni Node.js en el equipo del usuario.
-- Backend gestionado: Neon Data API (PostgREST) sobre PostgreSQL, Neon Auth/Better Auth para identidad y JWT, y Neon Object Storage para fotografías.\n- No se utilizará una API de negocio personalizada desplegada como Neon Function. Las consultas CRUD irán por Data API; las operaciones transaccionales complejas se implementarán como funciones SQL/RPC protegidas por RLS.\n- Las cargas de imágenes usarán URLs prefirmadas de corta duración emitidas por un componente de firma seguro; nunca se expondrán credenciales S3 en el navegador.
+- Backend gestionado: Neon Data API (PostgREST) sobre PostgreSQL, Neon Auth/Better Auth para identidad y JWT, y Neon Object Storage para fotografías.
+- No se utilizará una API de negocio personalizada desplegada como Neon Function. Las consultas CRUD irán por Data API; las operaciones transaccionales complejas se implementarán como funciones SQL/RPC protegidas por RLS.
+- Las cargas de imágenes usarán URLs prefirmadas de corta duración emitidas por un componente de firma seguro; nunca se expondrán credenciales S3 en el navegador.
 - Datos: PostgreSQL administrado por Neon.
 - Imágenes: Neon Object Storage, bucket `laus-product-images` con lectura pública para imágenes del catálogo; las escrituras se realizarán exclusivamente desde backend con credenciales restringidas y URLs prefirmadas.
 - Identidad: Neon Auth con Better Auth; una cuenta administradora inicialmente.
@@ -269,8 +271,10 @@ La pantalla de administración comprueba una URL `VITE_ADMIN_SESSION_CHECK_URL` 
 El siguiente paso no es habilitar escrituras desde el navegador: es seleccionar el runtime de despliegue de la API, confirmar la validación de sesión Neon Auth y el mecanismo de carga firmada de Neon Object Storage, implementar y probar ambos en QA.
 
 
-## 15. Decisión de alojamiento del backend
+## 15. Decisión de alojamiento del backend — sustituida
 
-La API del proyecto se alojará en **Neon Functions**, sobre la rama Neon QA, junto a PostgreSQL. No se usará Vercel para el backend. Neon Functions ofrece runtime serverless Node.js 24, URL HTTPS de invocación y despliegue de bundles; Hono será el router HTTP recomendado. La consulta de funciones en la rama QA devolvió una lista vacía: aún no hay API desplegada.
+La decisión anterior de desplegar una API de negocio en Neon Functions queda **retirada**. La arquitectura vigente utiliza Neon Data API (PostgREST) directamente desde el frontend nativo, Neon Auth/Better Auth para JWT y PostgreSQL RLS/GRANTs para autorización. Las operaciones de varias escrituras se implementan como funciones SQL/RPC. No desplegar ni reparar `lausapi`.
 
-El frontend React se ejecuta localmente durante diseño y QA, y consumirá la URL de la Neon Function mediante una variable pública de configuración que sólo contiene la URL. Los secretos, credenciales de base de datos y permisos de Storage se mantienen en variables privadas de la función. La API se versiona en el repositorio y se despliega a QA por separado de la interfaz.
+La Data API está habilitada en la rama QA `br-broad-block-bc99rqv7`. La migración `0003_neon_data_api_security.sql` configura roles, privilegios y políticas administrativas. La integración del SDK oficial en tienda y panel, las RPC transaccionales y el mecanismo de URLs prefirmadas de Object Storage deben terminarse antes de declarar el sistema migrado y listo para pruebas reales.
+
+El frontend continúa siendo HTML5, CSS3 y JavaScript nativo. No se incorpora React, TypeScript ni Vite. `main` y producción permanecen intactas.
