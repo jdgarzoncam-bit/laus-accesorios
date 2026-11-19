@@ -61,7 +61,7 @@ El PDF de catálogo es la fuente para importar productos, imágenes, precios y r
 - RLS is enabled on all 15 public tables. Public read access is restricted to catalog data; authenticated writes require `public.is_laus_admin()`.
 - The former `lausapi` Neon Function has been deleted from QA. Only `lausimgupload` remains, dedicated exclusively to issuing temporary image-upload URLs.
 - Public sign-up remains disabled. The first administrator profile has not been provisioned.
-- Object Storage bucket: `laus-product-images` (`public_read`). Uploads still require short-lived signed URLs; storage credentials must never be exposed in browser code.
+- Object Storage bucket: `laus-product-images` (`public_read`). The Neon Function `lausimgupload` issues five-minute signed upload URLs after checking the administrator session; storage credentials remain server-side.
 
 
 ## Integración actual
@@ -70,7 +70,7 @@ El PDF de catálogo es la fuente para importar productos, imágenes, precios y r
 - `assets/storefront.js` consulta directamente productos, categorías, inventario, imágenes y promociones; calcula el mejor descuento vigente y prepara el carrito para WhatsApp.
 - `assets/admin.js` autentica con Neon Auth y valida `admin_profiles`; gestiona productos, inventario, promociones, colecciones y configuración.
 - `backend/functions/image-signer/` contiene el firmador mínimo de enlaces de carga de Object Storage. No gestiona catálogo ni ventas.
-- `lausapi` es legado y no debe volver a utilizarse. Se eliminará cuando confirmemos que no existen referencias ni dependencias pendientes.
+- `lausapi` fue eliminado de la rama QA. No quedan llamadas `/api/*` en los scripts activos de tienda y administrador.
 
 
 ## Estado de migración (QA)
