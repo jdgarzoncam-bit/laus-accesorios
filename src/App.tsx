@@ -26,6 +26,8 @@ export default function App() {
   const [cart,setCart] = useState<CartLine[]>([])
   const [category,setCategory] = useState<Category>('Todos')
   const [query,setQuery] = useState('')
+  const [currentPage,setCurrentPage] = useState(1)
+  const pageSize = 9
   const [showCart,setShowCart] = useState(false)
   const [selectedProduct,setSelectedProduct] = useState<Product|null>(null)
   const [showAdmin,setShowAdmin] = useState(false)
@@ -35,7 +37,10 @@ export default function App() {
   const [form,setForm] = useState({name:'',category:'Aretes' as Product['category'],price:'',stock:'',image:'',description:''})
   useEffect(()=>{ localStorage.setItem('laus-products',JSON.stringify(products)) },[products])
   useEffect(()=>{ if(!selectedProduct)return; const onKey=(event:KeyboardEvent)=>{if(event.key==='Escape')setSelectedProduct(null)}; window.addEventListener('keydown',onKey); const previous=document.body.style.overflow; document.body.style.overflow='hidden'; return ()=>{window.removeEventListener('keydown',onKey);document.body.style.overflow=previous} },[selectedProduct])
-  const visible = useMemo(()=>products.filter(p=>(category==='Todos'||p.category===category)&&p.name.toLowerCase().includes(query.toLowerCase())),[products,category,query])
+  const filteredProducts = useMemo(()=>products.filter(p=>(category==='Todos'||p.category===category)&&p.name.toLowerCase().includes(query.toLowerCase())),[products,category,query])
+  const pageCount = Math.max(1,Math.ceil(filteredProducts.length/pageSize))
+  const visible = useMemo(()=>filteredProducts.slice((currentPage-1)*pageSize,currentPage*pageSize),[filteredProducts,currentPage,pageSize])
+  useEffect(()=>{if(currentPage>pageCount)setCurrentPage(pageCount)},[currentPage,pageCount])
   const total = cart.reduce((sum,line)=>sum+line.product.price*line.quantity,0)
   const cartCount = cart.reduce((sum,line)=>sum+line.quantity,0)
   const add = (product:Product) => { if(product.stock<1){setNotice('Consulta la disponibilidad de este producto por WhatsApp.');return} setCart(old=>{const found=old.find(x=>x.product.id===product.id);return found?old.map(x=>x.product.id===product.id?{...x,quantity:x.quantity+1}:x):[...old,{product,quantity:1}]});setNotice('Agregado a tu bolsita ✨') }
@@ -59,7 +64,7 @@ export default function App() {
       <button className="icon-btn mobile-only" onClick={()=>setMobileMenu(!mobileMenu)} aria-label="Abrir menú">{mobileMenu?<X/>:<Menu/>}</button>
       <a className="brand-mark" href="#" aria-label="Lau's Accesorios" onClick={()=>setShowAdmin(false)}><Sprout size={34} strokeWidth={1}/></a>
       <nav className={mobileMenu?'nav-links open':'nav-links'}>
-        <a href="#coleccion" onClick={()=>{setCategory('Aretes');setMobileMenu(false)}}>ARETES</a><a href="#coleccion" onClick={()=>{setCategory('Collares');setMobileMenu(false)}}>COLLARES</a><a href="#coleccion" onClick={()=>{setCategory('Ropa');setMobileMenu(false)}}>ROPA</a><a href="#coleccion" onClick={()=>{setCategory('Todos');setMobileMenu(false)}}>DEMÁS</a>
+        <a href="#coleccion" onClick={()=>{setCategory('Aretes');setCurrentPage(1);setMobileMenu(false)}}>ARETES</a><a href="#coleccion" onClick={()=>{setCategory('Collares');setCurrentPage(1);setMobileMenu(false)}}>COLLARES</a><a href="#coleccion" onClick={()=>{setCategory('Ropa');setCurrentPage(1);setMobileMenu(false)}}>ROPA</a><a href="#coleccion" onClick={()=>{setCategory('Todos');setCurrentPage(1);setMobileMenu(false)}}>DEMÁS</a>
       </nav>
       <div className="header-actions"><button className="icon-btn search-toggle" onClick={()=>document.getElementById('catalog-search')?.focus()} aria-label="Buscar"><Search size={22} strokeWidth={1.5}/></button><button className="bag-button" onClick={()=>setShowCart(true)} aria-label="Abrir carrito"><ShoppingBag size={22} strokeWidth={1.5}/><span>{cartCount}</span></button></div>
     </header>
@@ -79,10 +84,11 @@ export default function App() {
         </section>
         <section className="benefits"><div><Sparkles/><span>Detalles que enamoran</span></div><div><Truck/><span>Envíos coordinados por WhatsApp</span></div><div><Heart/><span>Encuentra tu próximo favorito</span></div></section>
         <section className="catalog-section" id="coleccion">
-          <div className="section-heading"><div><span className="eyebrow">ENCUENTRA TU FAVORITO</span><h2>Una colección <i>para ti.</i></h2></div><label className="search-box"><Search size={17}/><input id="catalog-search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar joyas, accesorios..."/></label></div>
-          <div className="category-row">{categories.map(c=><button key={c} className={category===c?'category-chip active':'category-chip'} onClick={()=>setCategory(c)}>{c}<span>↗</span></button>)}</div>
-          <div className="product-grid">{visible.map((p,i)=><article className="product-card" onClick={()=>setSelectedProduct(p)} tabIndex={0} role="button" key={p.id} style={{'--delay':`${i*60}ms`} as CSSProperties}><div className="product-photo"><img src={p.image} alt={p.name}/>{p.badge&&<span className="product-badge">{p.badge}</span>}<button className="quick-add" onClick={e=>{e.stopPropagation();add(p)}} aria-label={`Agregar ${p.name}`}><Plus size={18}/></button></div><div className="product-meta"><div><span className="product-category">{p.category}</span><h3>{p.name}</h3></div><strong>{money(p.price)}</strong></div><span className={p.stock>0?'stock in-stock':'stock out-stock'}>{p.stock>0?`Disponible · ${p.stock} unidades`:'Agotado · Consulta disponibilidad'}</span></article>)}</div>
+          <div className="section-heading"><div><span className="eyebrow">ENCUENTRA TU FAVORITO</span><h2>Una colección <i>para ti.</i></h2></div><label className="search-box"><Search size={17}/><input id="catalog-search" value={query} onChange={e=>{setQuery(e.target.value);setCurrentPage(1)}} placeholder="Buscar joyas, accesorios..."/></label></div>
+          <div className="category-row">{categories.map(c=><button key={c} className={category===c?'category-chip active':'category-chip'} onClick={()=>{setCategory(c);setCurrentPage(1)}}>{c}<span>↗</span></button>)}</div>
+          <div className="product-grid">{visible.map((p,i)=><article className="product-card" onClick={()=>setSelectedProduct(p)} tabIndex={0} role="button" key={p.id} style={{'--delay':`${i*60}ms`} as CSSProperties}><div className="product-photo"><img src={p.image} alt={p.name} loading="lazy" decoding="async"/>{p.badge&&<span className="product-badge">{p.badge}</span>}<button className="quick-add" onClick={e=>{e.stopPropagation();add(p)}} aria-label={`Agregar ${p.name}`}><Plus size={18}/></button></div><div className="product-meta"><div><span className="product-category">{p.category}</span><h3>{p.name}</h3></div><strong>{money(p.price)}</strong></div><span className={p.stock>0?'stock in-stock':'stock out-stock'}>{p.stock>0?`Disponible · ${p.stock} unidades`:'Agotado · Consulta disponibilidad'}</span></article>)}</div>
           {visible.length===0&&<div className="empty-state">No encontramos productos con esa búsqueda. Prueba otra palabra.</div>}
+          {filteredProducts.length>pageSize&&<nav className="catalog-pagination" aria-label="Páginas del catálogo"><span>{(currentPage-1)*pageSize+1}–{Math.min(currentPage*pageSize,filteredProducts.length)} de {filteredProducts.length} productos</span><div><button disabled={currentPage===1} onClick={()=>setCurrentPage(p=>Math.max(1,p-1))}>Anterior</button>{Array.from({length:pageCount},(_,i)=>i+1).map(page=><button key={page} className={page===currentPage?'current':''} aria-current={page===currentPage?'page':undefined} onClick={()=>setCurrentPage(page)}>{page}</button>)}<button disabled={currentPage===pageCount} onClick={()=>setCurrentPage(p=>Math.min(pageCount,p+1))}>Siguiente</button></div></nav>}
         </section>
         <section className="promo-band"><div><span className="eyebrow">UN TOQUE EXTRA DE MAGIA</span><h2>Tu estilo,<br/><i>tu universo.</i></h2><p>Combina, juega y encuentra piezas que hablen de ti.</p><a href="#coleccion" className="light-pill">Ver colección <ArrowRight size={16}/></a></div><div className="promo-orb">✧</div></section>
         <section className="story-section" id="historia"><span className="eyebrow">HOLA, SOMOS LAU'S</span><h2>La belleza está<br/>en los <i>detalles.</i></h2><p>Creemos en esos pequeños acentos que transforman un día común en uno especial. Encuentra aquí piezas para expresar tu esencia.</p></section>
