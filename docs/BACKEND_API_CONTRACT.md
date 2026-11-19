@@ -7,7 +7,7 @@ Base URL: `https://ep-purple-dream-bceofn8m.apirest.c-16.us-east-1.aws.neon.tech
 - REST de datos administrado por Neon Data API / PostgREST.
 - Identidad y JWT mediante Neon Auth / Better Auth.
 - RLS y GRANTs en PostgreSQL como única capa de autorización.
-- No usar la antigua Neon Function `lausapi` para operaciones de negocio.
+- No usar la antigua Neon image-upload signer `lausapi` para operaciones de negocio.
 
 ## Tablas públicas y permisos
 - Lectura anónima limitada por RLS a categorías visibles, productos publicados, imágenes de productos publicados, variantes activas, colecciones/promociones vigentes y configuración pública.
