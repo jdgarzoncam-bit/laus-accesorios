@@ -51,7 +51,7 @@ Principios:
 
 ## 3. Arquitectura técnica propuesta
 
-- Frontend: React + TypeScript + Vite (stack actual).
+- Frontend: HTML5 + CSS3 + JavaScript ES2022 nativo; archivos estáticos servidos por cualquier hosting/CDN. No requiere React, TypeScript, Vite, npm ni Node.js en el equipo del usuario.
 - Backend gestionado: Neon (PostgreSQL, Neon Auth y Neon Object Storage).
 - Datos: PostgreSQL administrado por Neon.
 - Imágenes: Neon Object Storage, bucket `laus-product-images` con lectura pública para imágenes del catálogo; las escrituras se realizarán exclusivamente desde backend con credenciales restringidas y URLs prefirmadas.
@@ -117,7 +117,7 @@ La plataforma no debe asumir que cada foto es un producto distinto: una referenc
 **Aceptación:** visitante puede leer solo productos publicados; visitante no puede insertar/editar/borrar; administrador autenticado puede gestionar datos e imágenes.
 
 ### Fase 2 — Catálogo y carga rápida en LAUS STUDIO
-- Reemplazar persistencia localStorage por Supabase.
+- Conectar el frontend nativo a la API segura alojada en Neon Functions; no usar localStorage como fuente de verdad.
 - Carga de múltiples imágenes, agrupación por referencia, referencia/precio obligatorios, categoría opcional por lote.
 - Validación de duplicados, edición, borradores y publicación.
 - Gestión de tallas/modelos e inventario.
@@ -163,9 +163,9 @@ La plataforma no debe asumir que cada foto es un producto distinto: una referenc
 
 ## 9. Estado actual y brechas conocidas
 
-La rama de trabajo contiene React/TypeScript/Vite y una experiencia inicial de tienda, carrito, panel administrativo y ficha visual. Sin embargo, la implementación inspeccionada aún usa datos de demostración y `localStorage`; el formulario actual de producto no es una carga real de archivos a Storage. El PDF actual invoca impresión del navegador, no un generador editorial de catálogo. El proyecto incluye integración inicial de Neon Auth en frontend; la API segura de negocio y la conexión controlada a PostgreSQL/Object Storage siguen pendientes.
+La rama de trabajo migra la interfaz a HTML/CSS/JavaScript nativos en `index.html` (tienda) y `admin.html` (LAU'S STUDIO), con estilos y lógica en `assets/`. El stack React/TypeScript/Vite fue retirado del frontend. Sin embargo, la implementación inspeccionada aún usa datos de demostración y `localStorage`; el formulario actual de producto no es una carga real de archivos a Storage. El PDF actual invoca impresión del navegador, no un generador editorial de catálogo. La interfaz nativa incorpora una pantalla de acceso que espera la API para validar sesión y rol; la integración real de Neon Auth y la API de negocio debe desplegarse y probarse antes de usar el panel con datos reales.
 
-Por tanto, estas funciones se consideran base/prototipo, no integraciones de producción. La siguiente tarea técnica es completar la capa backend segura, migraciones versionadas, políticas de acceso y conexión de frontend a una fuente de datos centralizada.
+Por tanto, estas funciones se consideran base/prototipo, no integraciones de producción. La siguiente tarea técnica es desplegar y probar la API QA, conectar CRUD de catálogo, inventario, promociones, colecciones y Object Storage, y reemplazar los datos ilustrativos por registros reales.
 
 ## 10. Fuera del alcance inicial
 
