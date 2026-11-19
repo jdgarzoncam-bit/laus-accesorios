@@ -16,6 +16,8 @@ jobs:
         run: |
           node --check assets/storefront.js
           node --check assets/admin.js
+          node --check assets/motion.js
+          node --check assets/config.js
           node --check backend/functions/api/index.mjs
       - name: Validate required static files
         run: |
