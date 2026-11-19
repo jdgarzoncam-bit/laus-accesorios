@@ -40,7 +40,7 @@ También puedes usar VS Code Live Server abriendo `index.html`.
 
 ## Estado funcional
 
-Las vistas y controles de navegación son interfaz de trabajo. Los productos que se ven actualmente son datos de demostración. El frontend todavía no debe utilizarse para administrar inventario real hasta completar el despliegue de la API, autorización de administradores, persistencia de productos y conexión a Object Storage. El prototipo registra eventos localmente si no existe una URL API configurada; esto no equivale a analítica centralizada.
+La tienda y el panel consumen datos de Neon cuando la API de QA está desplegada y configurada. No introducir datos ficticios como si fueran inventario real. La validación funcional de persistencia, autorización y cargas de Object Storage debe realizarse contra QA antes de usar el sistema operativamente.
 
 ## QA y producción
 
@@ -83,3 +83,8 @@ El PDF de catálogo es la fuente para importar productos, imágenes, precios y r
 - **Bloqueo de despliegue:** Neon reporta el deployment 4 de `lausapi` como `failed` por ausencia del paquete `pg`; el deployment activo sigue siendo el 2. Se añadió un paso de CI para generar un bundle ESM autocontenido y publicarlo como artefacto, pero ese artefacto aún no se ha desplegado en Neon.
 - La cuenta administrativa no ha sido creada. El formulario de acceso existe; el alta del primer usuario y su perfil autorizado se hará con el correo que indique el propietario.
 - No se ha modificado `main` ni se ha autorizado producción.
+
+
+## Empaquetado y despliegue de QA
+
+El workflow `Static QA package` valida sintaxis JavaScript, instala dependencias del backend, empaqueta `backend/functions/api/index.mjs` con `esbuild` para Node.js 24 y genera artefactos `laus-neon-function-bundle` y `laus-accesorios-qa`. El bundle de Neon debe ser autocontenido e incluir `pg` y los SDK de Object Storage; nunca desplegar el archivo fuente sin empaquetar. Desplegar únicamente en la rama Neon QA `br-broad-block-bc99rqv7`. No modificar `main` ni producción sin autorización expresa.
