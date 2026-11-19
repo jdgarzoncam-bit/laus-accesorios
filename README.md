@@ -69,3 +69,17 @@ El PDF de catálogo es la fuente para importar productos, imágenes, precios y r
 - Sale entries with a selected product atomically check and decrement stock and write an inventory movement. Manual sales without a product do not alter stock.
 - Promotions and collections have API create/update and product-assignment endpoints; the UI currently exposes creation and listing, with advanced assignment/editing still to be completed.
 - Live HTTP verification from this environment was not possible. Deployment state is completed and code syntax/CI checks are the available validation; sign-in and browser upload need a local browser test after the first admin account is provisioned.
+
+
+## Estado de cierre de bloques A–F (QA)
+
+Última revisión: 2026-11-19.
+
+- Se eliminaron los registros de demostración de los paneles y el catálogo de muestra del storefront. La base QA no contiene todavía productos, categorías, ventas, variantes, colecciones ni promociones reales.
+- La interfaz incorpora creación de productos con varias imágenes, borrador/publicación, editor de variantes, asociación de productos a colecciones/promociones, ajustes de inventario, formularios de campañas, ajustes de tienda y exportación de ventas CSV.
+- La tienda incorpora secciones de colecciones/promociones activas, selector de variantes, galería y salida imprimible para guardar como PDF.
+- El esquema de QA incluye `store_settings` con el número comercial de WhatsApp leído desde Neon.
+- Los archivos JavaScript y la API pasan validación sintáctica. Esto no sustituye pruebas HTTP ni pruebas en navegador.
+- **Bloqueo de despliegue:** Neon reporta el deployment 4 de `lausapi` como `failed` por ausencia del paquete `pg`; el deployment activo sigue siendo el 2. Se añadió un paso de CI para generar un bundle ESM autocontenido y publicarlo como artefacto, pero ese artefacto aún no se ha desplegado en Neon.
+- La cuenta administrativa no ha sido creada. El formulario de acceso existe; el alta del primer usuario y su perfil autorizado se hará con el correo que indique el propietario.
+- No se ha modificado `main` ni se ha autorizado producción.
