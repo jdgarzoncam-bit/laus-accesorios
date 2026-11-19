@@ -49,5 +49,6 @@ async function createCatalogPDF(){
  finally{if(button)button.disabled=false;}
 }
 $("#export-catalog")?.addEventListener("click",createCatalogPDF);
+$("#export-catalog-report")?.addEventListener("click",createCatalogPDF);
 
 $("#sale-rows")?.addEventListener("click",async e=>{const b=e.target.closest("[data-save-sale]");if(!b)return;const select=$("#sale-rows").querySelector('[data-sale-status="'+b.dataset.saveSale+'"]');if(!select)return;const r=await fetch(cfg.apiUrl+"/api/admin/sales/"+b.dataset.saveSale,{method:"PATCH",credentials:"include",headers:{"content-type":"application/json"},body:JSON.stringify({status:select.value})});if(!r.ok)return toast("No se pudo actualizar el estado de la venta.");toast("Estado de venta actualizado.");loadLiveAdminData();});
