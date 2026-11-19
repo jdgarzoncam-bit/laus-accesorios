@@ -1,1 +1,6 @@
-window.LAUS_CONFIG=Object.freeze({apiUrl:"https://br-broad-block-bc99rqv7-lausapi.compute.c-16.us-east-1.aws.neon.tech",authUrl:"https://ep-purple-dream-bceofn8m.neonauth.c-16.us-east-1.aws.neon.tech/neondb/auth",whatsappNumber:""});
+window.LAUS_CONFIG=Object.freeze({
+  dataApiUrl:"https://ep-purple-dream-bceofn8m.apirest.c-16.us-east-1.aws.neon.tech/neondb/rest/v1",
+  authUrl:"https://ep-purple-dream-bceofn8m.neonauth.c-16.us-east-1.aws.neon.tech/neondb/auth",
+  storageBucket:"laus-product-images",
+  whatsappNumber:"573027433621"
+});
