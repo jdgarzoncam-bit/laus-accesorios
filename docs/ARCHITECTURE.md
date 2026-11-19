@@ -52,11 +52,11 @@ Principios:
 ## 3. Arquitectura técnica propuesta
 
 - Frontend: React + TypeScript + Vite (stack actual).
-- Backend gestionado: Supabase.
-- Datos: PostgreSQL de Supabase.
-- Imágenes: Supabase Storage, bucket público de lectura para imágenes publicadas y escrituras autenticadas; si se requiere mayor control, servirlas mediante URLs firmadas.
-- Identidad: Supabase Auth, una cuenta administradora inicialmente.
-- Seguridad: Row Level Security (RLS) en todas las tablas expuestas; roles y políticas de mínimo privilegio.
+- Backend gestionado: Neon (PostgreSQL, Neon Auth y Neon Object Storage).
+- Datos: PostgreSQL administrado por Neon.
+- Imágenes: Neon Object Storage, bucket `laus-product-images` con lectura pública para imágenes del catálogo; las escrituras se realizarán exclusivamente desde backend con credenciales restringidas y URLs prefirmadas.
+- Identidad: Neon Auth con Better Auth; una cuenta administradora inicialmente.
+- Seguridad: PostgreSQL Row Level Security (RLS) en tablas expuestas; verificación de sesión Neon Auth en backend y privilegio mínimo.
 - PDF: generar desde los datos publicados y sus imágenes, con plantilla de marca; no mantener un PDF manual como segunda fuente de datos.
 - WhatsApp: construir mensaje con nombre, referencia, variante, cantidad, precio unitario y subtotal; número de destino configurado por variable de entorno.
 - QA y producción: proyectos Supabase separados cuando llegue el momento de producción. Secretos fuera del repositorio; nunca exponer service_role en frontend.
@@ -104,7 +104,7 @@ La plataforma no debe asumir que cada foto es un producto distinto: una referenc
 ## 7. Roadmap por entregas verificables
 
 ### Fase 0 — Fundaciones y entorno QA
-- Crear proyecto Supabase QA desde cero.
+- Crear proyecto Neon QA, rama `qa`, habilitar Neon Auth y Object Storage.
 - Configurar región, URL y claves públicas; secretos en GitHub/Vercel secrets o entorno local, nunca en código.
 - Instalar cliente Supabase y configurar variables de entorno.
 - Definir migraciones versionadas y separación QA/producción.
@@ -112,7 +112,7 @@ La plataforma no debe asumir que cada foto es un producto distinto: una referenc
 
 ### Fase 1 — Datos, autenticación y Storage
 - Crear esquema, índices, restricciones, RLS y políticas.
-- Configurar bucket de imágenes y permisos.
+- Configurar bucket `laus-product-images` y permisos de lectura pública/escritura backend.
 - Configurar acceso de administrador único.
 **Aceptación:** visitante puede leer solo productos publicados; visitante no puede insertar/editar/borrar; administrador autenticado puede gestionar datos e imágenes.
 
@@ -163,9 +163,9 @@ La plataforma no debe asumir que cada foto es un producto distinto: una referenc
 
 ## 9. Estado actual y brechas conocidas
 
-La rama de trabajo contiene React/TypeScript/Vite y una experiencia inicial de tienda, carrito, panel administrativo y ficha visual. Sin embargo, la implementación inspeccionada aún usa datos de demostración y `localStorage`; el formulario actual de producto no es una carga real de archivos a Storage. El PDF actual invoca impresión del navegador, no un generador editorial de catálogo. El proyecto aún no incluye el cliente de Supabase en sus dependencias.
+La rama de trabajo contiene React/TypeScript/Vite y una experiencia inicial de tienda, carrito, panel administrativo y ficha visual. Sin embargo, la implementación inspeccionada aún usa datos de demostración y `localStorage`; el formulario actual de producto no es una carga real de archivos a Storage. El PDF actual invoca impresión del navegador, no un generador editorial de catálogo. El proyecto aún no incluye la integración cliente/servidor de Neon Auth, PostgreSQL y Object Storage.
 
-Por tanto, estas funciones se consideran base/prototipo, no integraciones de producción. La primera tarea técnica es crear el proyecto Supabase QA y migrar el catálogo a una fuente de datos centralizada.
+Por tanto, estas funciones se consideran base/prototipo, no integraciones de producción. La primera tarea técnica es configurar el backend Neon QA (Auth, PostgreSQL y Storage) y migrar el catálogo a una fuente de datos centralizada.
 
 ## 10. Fuera del alcance inicial
 
@@ -176,3 +176,17 @@ Por tanto, estas funciones se consideran base/prototipo, no integraciones de pro
 - Multiusuario y permisos por empleado (se deja el modelo preparado, pero solo habrá un administrador inicialmente).
 
 Estas funciones podrán evaluarse después de validar el flujo principal de catálogo y pedidos.
+
+
+## 11. Backend confirmado: Neon QA
+
+- Proyecto Neon: `laus-accesorios-qa` (Project ID: `dawn-cherry-24723488`).
+- Región: `aws-us-east-1` (Virginia, Estados Unidos).
+- PostgreSQL: versión 17.
+- Rama de desarrollo: `qa` (Branch ID: `br-broad-block-bc99rqv7`).
+- Neon Auth: habilitado con Better Auth en la rama QA.
+- Neon Object Storage: habilitado.
+- Bucket: `laus-product-images`, acceso `public_read` para servir fotografías del catálogo.
+- Proyecto anterior `round-wind-94330652` fue creado inicialmente en `aws-sa-east-1`; Neon Object Storage no está disponible en esa región. Se conserva sin uso por ahora; no se eliminó.
+- La rama GitHub `feat/storefront-admin-foundation` sigue siendo el único destino de desarrollo. `main` no se modifica.
+- No se han creado aún tablas de negocio ni se ha conectado el frontend; son los siguientes pasos de implementación.
