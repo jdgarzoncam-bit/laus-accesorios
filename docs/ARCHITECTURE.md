@@ -256,3 +256,14 @@ Documento: `docs/DESIGN_SYSTEM.md`.
 5. Variables/secretos QA separados y ausentes del repositorio.
 6. Pruebas de acceso público, administrador y usuario no autorizado.
 7. Diseño base responsive validado antes de pasar al Bloque 2.
+
+
+## 14. Estado de verificación actualizado
+
+La inspección directa de `pg_policies` en Neon QA confirmó nueve políticas de lectura pública y una política de lectura propia en `admin_profiles`. No hay políticas de escritura administrativa. RLS está habilitado en las doce tablas; esto no equivale a una autorización administrativa completa. El bucket `laus-product-images` existe con acceso `public_read`.
+
+El workflow `.github/workflows/quality-checks.yml` fue actualizado para instalar dependencias, ejecutar Vitest, compilar y generar un artefacto ZIP de fuente en pushes a ramas `feat/**`. La configuración del workflow no demuestra que una ejecución haya terminado correctamente: debe comprobarse el run y descargar el artefacto antes de declarar la entrega ZIP verificada.
+
+La pantalla de administración comprueba una URL `VITE_ADMIN_SESSION_CHECK_URL` y bloquea el panel cuando falta autorización del servidor. Esa URL está vacía en `.env.example` hasta desplegar la API. Por tanto, el panel administrativo no se considera operativo ni seguro para gestión real todavía.
+
+El siguiente paso no es habilitar escrituras desde el navegador: es seleccionar el runtime de despliegue de la API, confirmar la validación de sesión Neon Auth y el mecanismo de carga firmada de Neon Object Storage, implementar y probar ambos en QA.
