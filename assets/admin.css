@@ -11,3 +11,5 @@
 @media(max-width:640px){.campaign-admin-row{align-items:flex-start;flex-direction:column}.campaign-admin-row button{width:100%}}
 
 .variant-create{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.variant-create select,.variant-create input{min-width:0;padding:10px;border:1px solid #eadfe1;border-radius:10px}.variant-create button{grid-column:1/-1;padding:10px;border:0;border-radius:10px;background:#f5e5e9;color:#775c65;cursor:pointer}.report-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+.settings-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}.settings-form label{display:grid;gap:7px;font-size:11px;color:#75666b}.settings-form input,.settings-form textarea{width:100%;min-width:0;padding:12px 13px;border:1px solid #eadfe1;border-radius:11px;background:#fff;color:#30292d;font:13px "DM Sans",sans-serif}.settings-form label:nth-child(4){grid-column:1/-1}.settings-form button,.settings-form .note{grid-column:1/-1}@media(max-width:700px){.settings-form{grid-template-columns:1fr}.settings-form label:nth-child(4){grid-column:auto}}
