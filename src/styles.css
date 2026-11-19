@@ -3,3 +3,81 @@
 @media(max-width:900px){.hero{min-height:540px}.hero-copy{left:7%;top:13%}.hero-art{right:1%;width:53%;top:15%;height:76%}.hero h1{font-size:70px}.product-photo{height:270px}.catalog-section{padding:75px 5%}.admin-shell{grid-template-columns:185px 1fr}.admin-kpis{grid-template-columns:repeat(2,1fr)}.admin-panels{grid-template-columns:1fr}.admin-main{padding:28px 3%}}
 @media(max-width:620px){.announcement{font-size:7px;letter-spacing:1.2px}.site-header{height:63px;padding:0 5%}.mobile-only{display:grid}.wordmark{font-size:18px}.wordmark span{font-size:11px}.nav-links{display:none;position:absolute;top:63px;left:0;right:0;background:#fff;padding:20px 6%;box-shadow:0 15px 20px #3d27300d;flex-direction:column;gap:20px}.nav-links.open{display:flex}.header-actions{gap:5px}.search-toggle{display:none}.hero{margin:10px 10px 0;min-height:650px;border-radius:23px}.hero-copy{left:8%;top:8%;max-width:90%}.hero h1{font-size:clamp(53px,15vw,75px);letter-spacing:-4px;margin:17px 0 10px}.hero-copy p{font-size:12px;max-width:260px}.hero-art{top:37%;right:4%;width:88%;height:56%}.hero-jewel{width:70%;height:85%}.floating-note{right:1%;bottom:7%}.hero-foot{font-size:7px}.benefits{padding:17px 5%;gap:12px;justify-content:space-between}.benefits div{flex-direction:column;gap:5px;text-align:center;flex:1;font-size:8px}.benefits svg{width:17px}.catalog-section{padding:62px 5% 70px}.section-heading{align-items:start;flex-direction:column}.section-heading h2{font-size:34px}.search-box{width:100%}.category-row{margin:24px 0 20px}.category-chip{padding:10px 13px}.product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 12px}.product-photo{height:auto;aspect-ratio: .82;border-radius:13px}.product-meta{display:block;padding:10px 1px 4px}.product-meta h3{font-size:12px}.product-meta strong{display:block;margin-top:7px;font-size:11px}.stock{font-size:8px}.product-badge{font-size:8px;top:8px;left:8px}.quick-add{width:32px;height:32px;right:8px;bottom:8px}.promo-band{margin:0 10px 60px;padding:42px 8%;min-height:300px}.promo-band h2{font-size:45px}.promo-orb{width:210px;height:210px;right:-50px;top:100px;font-size:90px}.story-section{padding:25px 25px 70px}.story-section h2{font-size:39px}footer{padding:28px 6%;flex-wrap:wrap}footer>span{order:3;width:100%}footer>div{gap:13px}.admin-shell{display:block}.admin-sidebar{position:sticky;top:63px;z-index:15;padding:8px 10px;display:flex;flex-direction:row;align-items:center;gap:5px;overflow:auto;border-bottom:1px solid #eee}.admin-brand{width:33px;height:33px;font-size:20px;margin:0 8px 0 0;flex-shrink:0}.admin-label,.sidebar-bottom{display:none}.admin-nav{white-space:nowrap;padding:9px;font-size:9px;gap:6px}.admin-nav svg{width:14px}.admin-main{padding:23px 4%}.admin-top h1{font-size:22px}.admin-top-actions{gap:7px}.live-dot{font-size:8px}.outline-btn{padding:9px;font-size:9px}.admin-kpis{gap:8px}.kpi-card{padding:13px}.kpi-card strong{font-size:19px}.kpi-top{font-size:9px}.kpi-card small{font-size:8px}.admin-panel{padding:14px}.panel-title{align-items:start}.pink-btn{font-size:9px;padding:9px}.product-form{grid-template-columns:1fr}.product-form .full{grid-column:1}.mini-product-list>div{gap:7px}.mini-product-list img{width:33px;height:38px}.mini-product-list b{font-size:9px}.mini-product-list em{font-size:8px}.quick-tools{display:grid;grid-template-columns:1fr}.quick-tools button{padding:12px}.cart-drawer{padding:22px}.table-wrap{margin:0 -8px}th,td{padding:9px 7px}}
 @media print{.announcement,.site-header,.benefits,.promo-band,.story-section,footer,.quick-add,.category-row,.search-box{display:none!important}.catalog-section{padding:10px}.product-grid{grid-template-columns:repeat(3,1fr)}.product-photo{height:180px}.product-card{break-inside:avoid}.hero{display:none}.stock{display:none}}
+
+/* Lau's Accesorios — portada editorial inspirada en la referencia aprobada */
+:root{--ink:#27262a}
+.app-shell{min-height:100vh;padding:clamp(24px,8vw,104px) 4.8vw;background:#45454c}
+.site-frame{max-width:1600px;margin:0 auto;background:#fff;border-radius:36px;overflow:hidden;box-shadow:0 30px 90px #1c1b2426}
+.announcement{display:none}
+.site-header{height:62px;padding:0 5.5%;position:relative;top:auto;display:grid;grid-template-columns:1fr auto 1fr;background:#fff;border:0;z-index:20}
+.brand-mark{display:flex;align-items:center;justify-self:start;color:#252329}
+.nav-links{display:flex;align-items:center;justify-content:center;gap:clamp(18px,3vw,36px)}
+.nav-links a{font-size:12px;font-weight:500;letter-spacing:.02em;color:#26252a}
+.nav-links a:hover{color:#c87999}
+.header-actions{justify-self:end;gap:10px}
+.icon-btn{color:#252329}
+.bag-button{background:transparent;padding:8px 0 8px 9px;gap:5px}
+.bag-button span{font-size:10px}
+.hero{margin:0;min-height:clamp(500px,58vw,700px);height:clamp(500px,58vw,700px);border-radius:0 0 36px 36px;background:linear-gradient(180deg,#0875ad 0%,#46b6d8 42%,#e9a9ce 73%,#d98eb8 100%);isolation:isolate;overflow:hidden}
+.hero-sky{position:absolute;inset:0;z-index:-2;background:
+ radial-gradient(ellipse 18% 11% at 8% 17%,#fff 0 36%,#ffffffb8 55%,transparent 75%),
+ radial-gradient(ellipse 20% 17% at 33% 16%,#fff 0 35%,#ffffffb8 54%,transparent 76%),
+ radial-gradient(ellipse 23% 17% at 88% 8%,#fff 0 32%,#ffffffa8 54%,transparent 76%),
+ radial-gradient(ellipse 16% 10% at 91% 43%,#fff 0 34%,#ffffff9c 58%,transparent 78%),
+ radial-gradient(ellipse 22% 13% at 3% 51%,#fff 0 34%,#ffffffa8 56%,transparent 78%),
+ radial-gradient(ellipse 34% 22% at 20% 100%,#f8c6e4 0 45%,#e9a8d1 65%,transparent 78%),
+ radial-gradient(ellipse 36% 23% at 55% 100%,#f6c4e1 0 45%,#e7a1d0 66%,transparent 80%),
+ radial-gradient(ellipse 34% 22% at 90% 100%,#f6c4e1 0 44%,#e6a1d0 65%,transparent 80%),
+ linear-gradient(180deg,#0875ad 0%,#54bde0 52%,#efb4d6 80%,#d88db8 100%)}
+.hero:before,.hero:after{content:"";position:absolute;z-index:-1;pointer-events:none;filter:blur(17px);border-radius:50%;background:#fff}
+.hero:before{width:40%;height:18%;left:-6%;bottom:8%;box-shadow:190px 15px 0 20px #f7c8e7,420px 2px 0 35px #f5c1e1,690px 10px 0 28px #f8c8e6}
+.hero:after{width:30%;height:15%;right:-5%;bottom:22%;box-shadow:-210px 45px 0 28px #f6c3e3,-440px 60px 0 22px #f9c9e7}
+.hero-copy{position:absolute;top:7%;left:0;right:0;max-width:none;text-align:center;z-index:2}
+.hero-copy h1{font-family:Sora,'DM Sans',sans-serif;font-size:clamp(100px,18vw,240px);font-weight:800;line-height:.9;letter-spacing:-.085em;color:#fff;margin:0;text-shadow:0 8px 24px #175c8140}
+.hero-copy p{margin:10px auto 0;color:#fff;font-size:clamp(10px,1.1vw,14px);letter-spacing:.22em;text-transform:uppercase;text-shadow:0 2px 12px #135a7a88}
+.hero-jewels{position:absolute;inset:18% 9% 7%;z-index:3;pointer-events:none}
+.jewel{position:absolute;object-fit:cover;mix-blend-mode:multiply;filter:drop-shadow(0 18px 16px #69445b55);border:5px solid #ffffff55;border-radius:50%;background:#f9e9ed}
+.jewel-earrings{width:clamp(110px,17vw,210px);height:clamp(110px,17vw,210px);left:19%;top:33%;transform:rotate(-9deg)}
+.jewel-chain{width:clamp(170px,25vw,310px);height:clamp(170px,25vw,310px);left:39%;top:22%;transform:rotate(8deg)}
+.jewel-ring{width:clamp(105px,15vw,185px);height:clamp(105px,15vw,185px);right:18%;top:57%;transform:rotate(12deg)}
+.hero-bottom-line{position:absolute;left:7%;right:7%;bottom:7%;height:1px;background:#fff8;border-radius:50%}
+.hero-play{position:absolute;z-index:5;bottom:4.2%;left:50%;transform:translateX(-50%);width:36px;height:36px;border-radius:50%;background:#fff;color:#bd7d9d;display:grid;place-items:center;box-shadow:0 3px 14px #6f426022;transition:transform .2s}
+.hero-play:hover{transform:translateX(-50%) scale(1.12)}
+.benefits{background:#fff}
+.catalog-section{background:#fff}
+.product-photo{background:#f7eff1}
+.promo-band{border-radius:24px}
+footer{border-radius:0}
+@media(max-width:620px){
+ .app-shell{padding:12px 10px 22px}
+ .site-frame{border-radius:24px}
+ .site-header{height:62px;padding:0 15px;grid-template-columns:38px 1fr 70px}
+ .brand-mark{grid-column:2;justify-self:center}
+ .brand-mark svg{width:29px;height:29px}
+ .mobile-only{display:grid;grid-column:1;grid-row:1}
+ .header-actions{grid-column:3;grid-row:1}
+ .nav-links{display:none;position:absolute;top:62px;left:0;right:0;background:#fff;padding:15px 12px 17px;box-shadow:0 12px 20px #3332;flex-direction:row;justify-content:flex-start;overflow-x:auto;gap:19px}
+ .nav-links.open{display:flex}
+ .nav-links a{font-size:10px;white-space:nowrap}
+ .hero{height: min(690px,70vh);min-height:520px;border-radius:0 0 24px 24px}
+ .hero-copy{top:11%}
+ .hero-copy h1{font-size:clamp(76px,22vw,132px);letter-spacing:-.09em}
+ .hero-copy p{font-size:8px;letter-spacing:.13em}
+ .hero-jewels{inset:25% 2% 12%}
+ .jewel-earrings{width:30vw;height:30vw;left:4%;top:34%}
+ .jewel-chain{width:43vw;height:43vw;left:31%;top:27%}
+ .jewel-ring{width:29vw;height:29vw;right:4%;top:62%}
+ .hero:before{width:65%;height:20%;bottom:8%;box-shadow:120px 10px 0 18px #f7c8e7,260px 5px 0 25px #f5c1e1}
+ .hero:after{width:48%;height:17%;bottom:23%;box-shadow:-150px 35px 0 20px #f6c3e3}
+ .hero-play{width:34px;height:34px;bottom:4%}
+ .benefits{gap:8px}
+}
+@media(min-width:621px) and (max-width:900px){
+ .app-shell{padding:48px 3vw}
+ .hero{height:540px;min-height:540px}
+ .hero-copy h1{font-size:clamp(120px,19vw,175px)}
+}
+@media print{
+ .app-shell{padding:0;background:white}
+ .site-frame{box-shadow:none;border-radius:0}
+}
