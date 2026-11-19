@@ -267,3 +267,10 @@ El workflow `.github/workflows/quality-checks.yml` fue actualizado para instalar
 La pantalla de administración comprueba una URL `VITE_ADMIN_SESSION_CHECK_URL` y bloquea el panel cuando falta autorización del servidor. Esa URL está vacía en `.env.example` hasta desplegar la API. Por tanto, el panel administrativo no se considera operativo ni seguro para gestión real todavía.
 
 El siguiente paso no es habilitar escrituras desde el navegador: es seleccionar el runtime de despliegue de la API, confirmar la validación de sesión Neon Auth y el mecanismo de carga firmada de Neon Object Storage, implementar y probar ambos en QA.
+
+
+## 15. Decisión de alojamiento del backend
+
+La API del proyecto se alojará en **Neon Functions**, sobre la rama Neon QA, junto a PostgreSQL. No se usará Vercel para el backend. Neon Functions ofrece runtime serverless Node.js 24, URL HTTPS de invocación y despliegue de bundles; Hono será el router HTTP recomendado. La consulta de funciones en la rama QA devolvió una lista vacía: aún no hay API desplegada.
+
+El frontend React se ejecuta localmente durante diseño y QA, y consumirá la URL de la Neon Function mediante una variable pública de configuración que sólo contiene la URL. Los secretos, credenciales de base de datos y permisos de Storage se mantienen en variables privadas de la función. La API se versiona en el repositorio y se despliega a QA por separado de la interfaz.
