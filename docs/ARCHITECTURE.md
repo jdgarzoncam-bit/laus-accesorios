@@ -262,14 +262,9 @@ Documento: `docs/DESIGN_SYSTEM.md`.
 
 ## 14. Estado de verificación actualizado
 
-La inspección directa de `pg_policies` en Neon QA confirmó nueve políticas de lectura pública y una política de lectura propia en `admin_profiles`. No hay políticas de escritura administrativa. RLS está habilitado en las doce tablas; esto no equivale a una autorización administrativa completa. El bucket `laus-product-images` existe con acceso `public_read`.
+Neon QA tiene activa Neon Data API con Neon Auth como proveedor. La migración `0003_neon_data_api_security.sql` configura permisos explícitos para los roles `anonymous` y `authenticated`, mantiene RLS en las 15 tablas y limita las escrituras a identidades presentes en `admin_profiles`. Se probó con los roles SQL que el acceso anónimo puede leer sólo la configuración/catálogo permitido y que una identidad ausente no obtiene privilegios de administrador ni lectura de ventas.
 
-El workflow `.github/workflows/quality-checks.yml` fue actualizado para instalar dependencias, ejecutar Vitest, compilar y generar un artefacto ZIP de fuente en pushes a ramas `feat/**`. La configuración del workflow no demuestra que una ejecución haya terminado correctamente: debe comprobarse el run y descargar el artefacto antes de declarar la entrega ZIP verificada.
-
-La pantalla de administración comprueba una URL `VITE_ADMIN_SESSION_CHECK_URL` y bloquea el panel cuando falta autorización del servidor. Esa URL está vacía en `.env.example` hasta desplegar la API. Por tanto, el panel administrativo no se considera operativo ni seguro para gestión real todavía.
-
-El siguiente paso no es habilitar escrituras desde el navegador: es seleccionar el runtime de despliegue de la API, confirmar la validación de sesión Neon Auth y el mecanismo de carga firmada de Neon Object Storage, implementar y probar ambos en QA.
-
+Pendiente: reemplazar las llamadas `/api/*` de `assets/storefront.js` y `assets/admin.js` por el SDK `@neon/neon-js`; crear RPC transaccionales para ventas e inventario; integrar carga firmada de imágenes; ejecutar pruebas reales en navegador. No declarar la migración completa hasta cerrar esos puntos.
 
 ## 15. Decisión de alojamiento del backend — sustituida
 
