@@ -48,7 +48,8 @@ jobs:
           name: laus-accesorios-qa
           path: laus-accesorios-qa.zip
           if-no-files-found: error
-          retention-days: 14      - name: Upload Neon Function bundle
+          retention-days: 14
+      - name: Upload Neon Function bundle
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feat/')
         uses: actions/upload-artifact@v4
         with:
