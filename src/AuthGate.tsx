@@ -3,68 +3,109 @@ import type { FormEvent, ReactNode } from 'react'
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, Sprout, X } from 'lucide-react'
 import { authClient } from './neon'
 
-const BOOTSTRAP_EMAIL = 'jdgarzoncam@gmail.com'\ntype Props = { children: ReactNode; onClose: () => void }
+type Props = { children: ReactNode; onClose: () => void }
 
 export default function AuthGate({ children, onClose }: Props) {
   const [session, setSession] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const [mode, setMode] = useState<'login' | 'signup'>('login')
+  const [busy, setBusy] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [name, setName] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [message, setMessage] = useState('')\n  const isBootstrapEmail = email.trim().toLowerCase() === BOOTSTRAP_EMAIL
+  const [authorization, setAuthorization] = useState<'checking' | 'allowed' | 'denied'>('checking')
+
+  const adminSessionUrl = import.meta.env.VITE_ADMIN_SESSION_CHECK_URL as string | undefined
 
   useEffect(() => {
     let active = true
-    authClient?.getSession().then(({ data }: any) => { if (active) setSession(data?.session ? data : null) }).catch(() => {})
-      .finally(() => { if (active) setLoading(false) })
+    const initialize = async () => {
+      try {
+        const current = await authClient?.getSession()
+        if (!active) return
+        const nextSession = current?.data?.session ? current.data : null
+        setSession(nextSession)
+        if (!nextSession || !adminSessionUrl) {
+          setAuthorization('denied')
+          return
+        }
+        const response = await fetch(adminSessionUrl, { method: 'GET', credentials: 'include', headers: { Accept: 'application/json' } })
+        const result = response.ok ? await response.json() : null
+        if (active) setAuthorization(result?.authorized === true ? 'allowed' : 'denied')
+      } catch {
+        if (active) setAuthorization('denied')
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+    void initialize()
     return () => { active = false }
-  }, [])
+  }, [adminSessionUrl])
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
-    if (!authClient) { setError('Falta configurar VITE_NEON_AUTH_URL en el entorno QA.'); return }
-    setBusy(true); setError(''); setMessage('')
+    if (!authClient) {
+      setError('Falta configurar VITE_NEON_AUTH_URL en el entorno QA.')
+      return
+    }
+    setBusy(true)
+    setError('')
     try {
-      const result = mode === 'login'
-        ? await authClient.signIn.email({ email, password })
-        : await authClient.signUp.email({ email, password, name })
-      if (result.error) throw new Error(result.error.message || 'No fue posible completar la solicitud.')
+      const result = await authClient.signIn.email({ email, password })
+      if (result.error) throw new Error(result.error.message || 'No fue posible iniciar sesión.')
       const current = await authClient.getSession()
-      setSession(current.data?.session ? current.data : null)
-      if (mode === 'signup') setMessage('Cuenta creada. Verifica tu correo. Después asignaremos el rol administrador principal y cerraremos el registro público.')
-    } catch (err) { setError(err instanceof Error ? err.message : 'Ocurrió un error. Intenta nuevamente.') }
-    finally { setBusy(false) }
+      const nextSession = current.data?.session ? current.data : null
+      setSession(nextSession)
+      if (!nextSession || !adminSessionUrl) {
+        setAuthorization('denied')
+        return
+      }
+      const response = await fetch(adminSessionUrl, { method: 'GET', credentials: 'include', headers: { Accept: 'application/json' } })
+      const authorizationResult = response.ok ? await response.json() : null
+      setAuthorization(authorizationResult?.authorized === true ? 'allowed' : 'denied')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ocurrió un error. Intenta nuevamente.')
+      setAuthorization('denied')
+    } finally {
+      setBusy(false)
+    }
   }
 
-  const user = session?.user
-  const roles = typeof user?.role === 'string' ? user.role.split(',').map((r: string) => r.trim()) : Array.isArray(user?.role) ? user.role : []
-  const isAdmin = roles.includes('admin') || roles.includes('owner')
+  const signOut = async () => {
+    await authClient?.signOut()
+    setSession(null)
+    setAuthorization('denied')
+  }
 
-  if (loading) return <div className="auth-screen"><div className="auth-card"><Sprout/><p>Preparando tu espacio seguro…</p></div></div>
-  if (user && isAdmin) return <>{children}</>
-  if (user && !isAdmin) return <div className="auth-screen"><section className="auth-card auth-pending"><button className="auth-close" onClick={onClose} aria-label="Cerrar"><X/></button><Sprout className="auth-brand-icon"/><span className="auth-kicker">LAU'S STUDIO</span><h1>Solicitud recibida</h1><p>Tu cuenta está creada, pero todavía no tiene autorización administrativa. Solo las tres cuentas aprobadas pueden entrar al panel.</p><button className="auth-submit" onClick={async()=>{await authClient?.signOut();setSession(null)}}>Cerrar sesión <ArrowRight size={17}/></button></section></div>
+  if (loading || authorization === 'checking') {
+    return <div className="auth-screen"><div className="auth-card"><Sprout /><p>Verificando acceso seguro…</p></div></div>
+  }
 
-  return <div className="auth-screen">
-    <section className="auth-card">
-      <button className="auth-close" onClick={onClose} aria-label="Cerrar"><X/></button>
-      <div className="auth-topline"><span>CLOUD NINE · LAU'S</span><button onClick={()=>{setMode(mode==='login'?'signup':'login');setError('');setMessage('')}}>{mode==='login'?'Sign Up':'Log in'}</button></div>
-      <Sprout className="auth-brand-icon"/>
-      <span className="auth-kicker">ESPACIO PRIVADO DE ADMINISTRACIÓN</span>
-      <h1>{mode==='login'?'Log in':'Create account'}</h1>
-      <p className="auth-subtitle">{mode==='login'?'Qué bueno tenerte de vuelta.':'Crea tu cuenta autorizada para LAU’S STUDIO.'}</p>
-      <form onSubmit={submit}>
-        {mode==='signup'&&<label className="auth-field"><Sprout size={17}/><input value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre" required autoComplete="name"/></label>}
-        <label className="auth-field"><Mail size={17}/><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="E-mail address" required autoComplete="email"/></label>
-        <label className="auth-field"><LockKeyhole size={17}/><input type={showPassword?'text':'password'} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password" required minLength={8} autoComplete={mode==='login'?'current-password':'new-password'}/><button type="button" onClick={()=>setShowPassword(!showPassword)} aria-label="Mostrar u ocultar contraseña">{showPassword?<EyeOff size={17}/>:<Eye size={17}/>}</button></label>
-        {mode==='signup' && !isBootstrapEmail && <p className="auth-error">El primer registro está reservado para jdgarzoncam@gmail.com.</p>}{error&&<p className="auth-error" role="alert">{error}</p>}{message&&<p className="auth-message">{message}</p>}
-        <button className="auth-submit" disabled={busy || (mode==='signup' && !isBootstrapEmail)}>{busy?'Un momento…':mode==='login'?'Ingresar':'Crear cuenta'} <ArrowRight size={18}/></button>
-      </form>
-      <p className="auth-footnote">Acceso limitado a un máximo de tres administradores autorizados.</p>
-      <button className="auth-switch" onClick={()=>{setMode(mode==='login'?'signup':'login');setError('');setMessage('')}}>{mode==='login'?'¿Primera vez? Crear cuenta':'¿Ya tienes cuenta? Log in'}</button>
-    </section>
-  </div>
+  if (session && authorization === 'allowed') return <>{children}</>
+
+  if (session) {
+    return <div className="auth-screen"><section className="auth-card auth-pending">
+      <button className="auth-close" onClick={onClose} aria-label="Cerrar"><X /></button>
+      <Sprout className="auth-brand-icon" /><span className="auth-kicker">LAU'S STUDIO</span>
+      <h1>Acceso no autorizado</h1>
+      <p>La sesión existe, pero el servidor no ha confirmado permisos administrativos. El panel permanece bloqueado hasta validar tu rol.</p>
+      <button className="auth-submit" onClick={() => { void signOut() }}>Cerrar sesión <ArrowRight size={17} /></button>
+    </section></div>
+  }
+
+  return <div className="auth-screen"><section className="auth-card">
+    <button className="auth-close" onClick={onClose} aria-label="Cerrar"><X /></button>
+    <div className="auth-topline"><span>LAU'S · ACCESO PRIVADO</span></div>
+    <Sprout className="auth-brand-icon" />
+    <span className="auth-kicker">ESPACIO PRIVADO DE ADMINISTRACIÓN</span>
+    <h1>Log in</h1>
+    <p className="auth-subtitle">Ingresa con una cuenta previamente autorizada.</p>
+    <form onSubmit={submit}>
+      <label className="auth-field"><Mail size={17} /><input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="Correo electrónico" required autoComplete="email" /></label>
+      <label className="auth-field"><LockKeyhole size={17} /><input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" required autoComplete="current-password" /><button type="button" onClick={() => setShowPassword(!showPassword)} aria-label="Mostrar u ocultar contraseña">{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button></label>
+      {error && <p className="auth-error" role="alert">{error}</p>}
+      <button className="auth-submit" disabled={busy}>{busy ? 'Verificando…' : 'Ingresar'} <ArrowRight size={18} /></button>
+    </form>
+    <p className="auth-footnote">Registro público deshabilitado. El alta de administradores se hará mediante un proceso privado controlado desde backend.</p>
+  </section></div>
 }
