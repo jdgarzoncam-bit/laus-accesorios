@@ -64,29 +64,21 @@ El PDF de catálogo es la fuente para importar productos, imágenes, precios y r
 - Object Storage bucket: `laus-product-images` (`public_read`). Uploads still require short-lived signed URLs; storage credentials must never be exposed in browser code.
 
 
-## Current implementation boundaries
+## Límites actuales de la migración
 
-- QA database is currently empty of product, category and sales records. Do not interpret sample content in preview mode as live business data.
-- Product creation, initial inventory, product editing, image replacement/deletion, sales entry, inventory adjustments, collection creation and promotion creation are wired to the API.
-- Sale entries with a selected product atomically check and decrement stock and write an inventory movement. Manual sales without a product do not alter stock.
-- Promotions and collections have API create/update and product-assignment endpoints; the UI currently exposes creation and listing, with advanced assignment/editing still to be completed.
-- Live HTTP verification from this environment was not possible. Deployment state is completed and code syntax/CI checks are the available validation; sign-in and browser upload need a local browser test after the first admin account is provisioned.
+La tienda y LAUS STUDIO aún tienen referencias JavaScript al contrato antiguo `/api/*`. Esas llamadas se están sustituyendo por el SDK oficial `@neon/neon-js` y consultas PostgREST. No usar el despliegue anterior de `lausapi`. Las operaciones de inventario/ventas deben pasar a RPC transaccional; las cargas de imágenes necesitan firma temporal segura. La interfaz no se declara lista hasta completar esa sustitución y pruebas de navegador.
 
 
-## Estado de cierre de bloques A–F (QA)
+## Estado de migración (QA)
 
-Última revisión: 2026-11-19.
-
-- Se eliminaron los registros de demostración de los paneles y el catálogo de muestra del storefront. La base QA no contiene todavía productos, categorías, ventas, variantes, colecciones ni promociones reales.
-- La interfaz incorpora creación de productos con varias imágenes, borrador/publicación, editor de variantes, asociación de productos a colecciones/promociones, ajustes de inventario, formularios de campañas, ajustes de tienda y exportación de ventas CSV.
-- La tienda incorpora secciones de colecciones/promociones activas, selector de variantes, galería y salida imprimible para guardar como PDF.
-- El esquema de QA incluye `store_settings` con el número comercial de WhatsApp leído desde Neon.
-- Los archivos JavaScript y la API pasan validación sintáctica. Esto no sustituye pruebas HTTP ni pruebas en navegador.
-- **Bloqueo de despliegue:** Neon reporta el deployment 4 de `lausapi` como `failed` por ausencia del paquete `pg`; el deployment activo sigue siendo el 2. Se añadió un paso de CI para generar un bundle ESM autocontenido y publicarlo como artefacto, pero ese artefacto aún no se ha desplegado en Neon.
-- La cuenta administrativa no ha sido creada. El formulario de acceso existe; el alta del primer usuario y su perfil autorizado se hará con el correo que indique el propietario.
-- No se ha modificado `main` ni se ha autorizado producción.
+- El esquema de negocio y los datos se conservan en Neon QA.
+- Neon Data API está activa con Neon Auth como proveedor.
+- Se aplicó `db/migrations/0003_neon_data_api_security.sql`: grants de lectura pública limitados, eventos anónimos permitidos y escrituras autenticadas condicionadas a un perfil administrador.
+- Se verificó que las 15 tablas públicas mantienen RLS habilitado; el rol anónimo lee configuración pública y no ve ventas; sin identidad no obtiene permisos de administrador.
+- La migración de llamadas frontend y operaciones RPC sigue en curso. No hay usuarios administradores ni productos reales aún.
+- No se modificó `main` ni producción.
 
 
-## Empaquetado y despliegue de QA
+## QA y publicación
 
-El workflow `Static QA package` debe validarse y actualizarse para empaquetar únicamente el frontend estático y sus pruebas. No se debe volver a compilar ni desplegar `lausapi` como parte del flujo. La rama Neon QA `br-broad-block-bc99rqv7` es el único destino de esta migración. No modificar `main` ni producción sin autorización expresa.
+El workflow `Static QA package` valida JavaScript y empaqueta el frontend estático. No instala ni empaqueta Neon Functions. La entrega se mantiene en `feat/storefront-admin-foundation`; no modificar `main` ni producción sin autorización expresa.
