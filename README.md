@@ -7,8 +7,9 @@ Tienda digital de joyería, accesorios y moda. Frontend nativo, responsive y sin
 - **Tienda pública:** HTML5, CSS3 y JavaScript ES6 en `index.html`.
 - **Panel privado:** LAU'S STUDIO en `admin.html`.
 - **Estilos y lógica:** `assets/`.
-- **Backend de datos:** Neon Data API (PostgREST) + PostgreSQL, con Neon Auth y RLS. Sin API personalizada en Neon Functions.
-- **Imágenes:** Neon Object Storage.
+- **Datos:** Neon Data API (PostgREST) + PostgreSQL, con Neon Auth y RLS.
+- **Fotografías:** Neon Object Storage; un Neon Function independiente emite enlaces temporales de carga, sin gestionar productos ni datos comerciales.
+- **Imágenes:** Neon Object Storage con enlaces de carga firmados de corta duración.
 - **Repositorio:** GitHub.
 
 El navegador no requiere React, TypeScript, Vite, npm ni Node.js para ejecutar el frontend.
@@ -31,16 +32,15 @@ También puedes usar VS Code Live Server abriendo `index.html`.
 ## Módulos de LAU'S STUDIO
 
 - Dashboard: visitantes, clics a WhatsApp, producto y categoría más vistos.
-- Ventas: registro manual e historial.
 - Catálogo: productos, categorías, precios y fotografías.
 - Inventario: existencias y movimientos.
 - Promociones y colecciones.
-- Analítica e informes.
+- Analítica básica de visitas e intención de compra.
 - Configuración y acceso administrativo.
 
 ## Estado funcional
 
-La tienda y el panel consumirán Neon Data API por HTTPS. La integración nativa del frontend está en migración y aún no debe considerarse operativa hasta completar sus pruebas. No introducir datos ficticios como si fueran inventario real. La validación funcional de persistencia, autorización y cargas de Object Storage debe realizarse contra QA antes de usar el sistema operativamente.
+La tienda y el panel consultan Neon Data API directamente mediante el SDK oficial. El panel utiliza Neon Auth y verifica el perfil administrador antes de mostrar las funciones privadas. No se implementa checkout ni registro de compras: el carrito se envía a WhatsApp.
 
 ## QA y producción
 
@@ -64,9 +64,13 @@ El PDF de catálogo es la fuente para importar productos, imágenes, precios y r
 - Object Storage bucket: `laus-product-images` (`public_read`). Uploads still require short-lived signed URLs; storage credentials must never be exposed in browser code.
 
 
-## Límites actuales de la migración
+## Integración actual
 
-La tienda y LAUS STUDIO aún tienen referencias JavaScript al contrato antiguo `/api/*`. Esas llamadas se están sustituyendo por el SDK oficial `@neon/neon-js` y consultas PostgREST. No usar el despliegue anterior de `lausapi`. Las operaciones de inventario/ventas deben pasar a RPC transaccional; las cargas de imágenes necesitan firma temporal segura. La interfaz no se declara lista hasta completar esa sustitución y pruebas de navegador.
+- `assets/neon-client.js` inicializa `@neon/neon-js` para Data API y Neon Auth.
+- `assets/storefront.js` consulta directamente productos, categorías, inventario, imágenes y promociones; calcula el mejor descuento vigente y prepara el carrito para WhatsApp.
+- `assets/admin.js` autentica con Neon Auth y valida `admin_profiles`; gestiona productos, inventario, promociones, colecciones y configuración.
+- `backend/functions/image-signer/` contiene el firmador mínimo de enlaces de carga de Object Storage. No gestiona catálogo ni ventas.
+- `lausapi` es legado y no debe volver a utilizarse. Se eliminará cuando confirmemos que no existen referencias ni dependencias pendientes.
 
 
 ## Estado de migración (QA)
