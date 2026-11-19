@@ -3,7 +3,7 @@ import type { FormEvent, ReactNode } from 'react'
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, Sprout, X } from 'lucide-react'
 import { authClient } from './neon'
 
-type Props = { children: ReactNode; onClose: () => void }
+const BOOTSTRAP_EMAIL = 'jdgarzoncam@gmail.com'\ntype Props = { children: ReactNode; onClose: () => void }
 
 export default function AuthGate({ children, onClose }: Props) {
   const [session, setSession] = useState<any>(null)
@@ -15,7 +15,7 @@ export default function AuthGate({ children, onClose }: Props) {
   const [showPassword, setShowPassword] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState('')\n  const isBootstrapEmail = email.trim().toLowerCase() === BOOTSTRAP_EMAIL
 
   useEffect(() => {
     let active = true
@@ -35,7 +35,7 @@ export default function AuthGate({ children, onClose }: Props) {
       if (result.error) throw new Error(result.error.message || 'No fue posible completar la solicitud.')
       const current = await authClient.getSession()
       setSession(current.data?.session ? current.data : null)
-      if (mode === 'signup') setMessage('Cuenta creada. El acceso al panel se habilitará cuando esta cuenta sea autorizada como administradora.')
+      if (mode === 'signup') setMessage('Cuenta creada. Verifica tu correo. Después asignaremos el rol administrador principal y cerraremos el registro público.')
     } catch (err) { setError(err instanceof Error ? err.message : 'Ocurrió un error. Intenta nuevamente.') }
     finally { setBusy(false) }
   }
@@ -60,8 +60,8 @@ export default function AuthGate({ children, onClose }: Props) {
         {mode==='signup'&&<label className="auth-field"><Sprout size={17}/><input value={name} onChange={e=>setName(e.target.value)} placeholder="Nombre" required autoComplete="name"/></label>}
         <label className="auth-field"><Mail size={17}/><input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="E-mail address" required autoComplete="email"/></label>
         <label className="auth-field"><LockKeyhole size={17}/><input type={showPassword?'text':'password'} value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password" required minLength={8} autoComplete={mode==='login'?'current-password':'new-password'}/><button type="button" onClick={()=>setShowPassword(!showPassword)} aria-label="Mostrar u ocultar contraseña">{showPassword?<EyeOff size={17}/>:<Eye size={17}/>}</button></label>
-        {error&&<p className="auth-error" role="alert">{error}</p>}{message&&<p className="auth-message">{message}</p>}
-        <button className="auth-submit" disabled={busy}>{busy?'Un momento…':mode==='login'?'Ingresar':'Crear cuenta'} <ArrowRight size={18}/></button>
+        {mode==='signup' && !isBootstrapEmail && <p className="auth-error">El primer registro está reservado para jdgarzoncam@gmail.com.</p>}{error&&<p className="auth-error" role="alert">{error}</p>}{message&&<p className="auth-message">{message}</p>}
+        <button className="auth-submit" disabled={busy || (mode==='signup' && !isBootstrapEmail)}>{busy?'Un momento…':mode==='login'?'Ingresar':'Crear cuenta'} <ArrowRight size={18}/></button>
       </form>
       <p className="auth-footnote">Acceso limitado a un máximo de tres administradores autorizados.</p>
       <button className="auth-switch" onClick={()=>{setMode(mode==='login'?'signup':'login');setError('');setMessage('')}}>{mode==='login'?'¿Primera vez? Crear cuenta':'¿Ya tienes cuenta? Log in'}</button>
