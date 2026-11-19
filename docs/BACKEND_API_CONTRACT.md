@@ -1,44 +1,41 @@
-# LAU'S Accesorios — API contract (QA)
+# LAU'S Accesorios — Neon Data API contract (QA)
 
-Base URL: `https://br-broad-block-bc99rqv7-lausapi.compute.c-16.us-east-1.aws.neon.tech`
+Base URL: `https://ep-purple-dream-bceofn8m.apirest.c-16.us-east-1.aws.neon.tech/neondb/rest/v1`
 
-## Public
-- `GET /api/health`: service/branch/storage health descriptor.
-- `GET /api/products?q=&category=`: published products, category, available stock and short-lived signed image URLs.
-- `GET /api/categories`: visible categories.
-- `POST /api/events`: allow-listed anonymous storefront analytics events.
+## Arquitectura
+- PostgreSQL gestionado por Neon.
+- REST de datos administrado por Neon Data API / PostgREST.
+- Identidad y JWT mediante Neon Auth / Better Auth.
+- RLS y GRANTs en PostgreSQL como única capa de autorización.
+- No usar la antigua Neon Function `lausapi` para operaciones de negocio.
 
-## Authentication
-- `/api/auth/*`: same-origin proxy to Neon Managed Auth. Auth cookies are scoped to the API host, Secure and SameSite=None for credentialed browser calls.
-- `GET /api/admin/session`: requires a valid Neon Auth session and a matching row in `public.admin_profiles`.
-- All other `/api/admin/*` routes require the same admin check. There is no public admin signup.
+## Tablas públicas y permisos
+- Lectura anónima limitada por RLS a categorías visibles, productos publicados, imágenes de productos publicados, variantes activas, colecciones/promociones vigentes y configuración pública.
+- Inserción anónima limitada a eventos de analítica permitidos.
+- Operaciones de escritura autenticadas requieren que `public.is_laus_admin()` confirme un perfil en `admin_profiles`.
+- Todas las tablas del esquema `public` tienen RLS habilitado.
 
-## Admin catalog and operations
-- `GET|POST /api/admin/products`; `PATCH /api/admin/products/:id`.
-- `GET|POST /api/admin/categories`.
-- `GET /api/admin/inventory`; `POST /api/admin/inventory/adjust` (transactional, cannot make stock negative, writes inventory movement).
-- `GET|POST /api/admin/collections`; `PATCH /api/admin/collections/:id`; `PUT /api/admin/collections/:id/products`.
-- `GET|POST /api/admin/promotions`; `PATCH /api/admin/promotions/:id`; `PUT /api/admin/promotions/:id/products`.
-- `GET|POST /api/admin/sales`; `PATCH /api/admin/sales/:id`.
-- `POST /api/admin/images/upload-url`: presigned PUT for image/jpeg, image/png, image/webp, image/avif. Browser CORS is configured for signed PUT requests.
-- `POST /api/admin/images`: save image metadata after upload.
-- `DELETE /api/admin/images/:id`: delete metadata then the object from Neon Object Storage.
-- `GET /api/admin/metrics?days=30`: visitor sessions, WhatsApp click count and top viewed product/category.
+## Operaciones
+- Catálogo: `products`, `categories`, `product_images`, `product_variants`.
+- Inventario: `inventory`, `inventory_movements`.
+- Colecciones: `collections`, `collection_products`.
+- Promociones: `promotions`, `product_promotions`.
+- Ventas: `sales`, `sale_items`.
+- Analítica: `catalog_events`.
+- Configuración: `store_settings`.
 
-## Security notes
-- API uses Neon-injected `DATABASE_URL`, `NEON_AUTH_BASE_URL` and S3-compatible `AWS_*` variables. No DB or storage secret belongs in frontend code.
-- API checks Neon Auth session and `admin_profiles` before privileged routes. Browser never sets database JWT claims.
-- Neon Auth QA email/password signups are disabled. First administrator provisioning is a controlled manual step.
-- CORS permits localhost/127.0.0.1 for QA. Before hosting the frontend, set the function's `APP_ORIGIN` to the exact HTTPS origin and add that origin to Neon Auth trusted origins.
-- This function and API URL target QA only. Production branch is not modified.
+## RPC transaccional pendiente
+Las operaciones que deben ser atómicas (ajustes de inventario, venta con descuento de existencias, asociaciones de campañas y generación de métricas agregadas) se implementarán como funciones PostgreSQL invocadas por `rpc()`, con validación de admin y RLS. No se deben reproducir como secuencias de escrituras independientes desde el navegador.
 
+## Object Storage
+Bucket QA: `laus-product-images` (`public_read`). Las imágenes públicas se pueden consultar por URL; las cargas/borrados requieren URLs prefirmadas emitidas por un servicio de firma seguro. Las claves S3 jamás se incluyen en `assets/config.js` ni en JavaScript público.
 
-## Rutas añadidas en el código QA (pendientes de despliegue)
+## Seguridad y límites
+- Neon Auth signup público deshabilitado.
+- Primer perfil administrador aún no provisionado.
+- Data API expone únicamente el esquema `public`.
+- La configuración actual limita CORS a localhost:5173 y localhost:8000.
+- No publicar ni cambiar `main` sin autorización expresa.
 
-- `GET /api/collections` y `GET /api/promotions`: colecciones y promociones activas, con productos publicados asociados.
-- `GET /api/store-config`: datos públicos de la tienda.
-- `GET|PUT /api/admin/settings`: lectura y edición protegida de datos comerciales.
-- `GET|POST /api/admin/products/:id/variants` y `PATCH /api/admin/variants/:id`: variantes y tallas.
-- `GET /api/admin/analytics-series?days=30`: serie diaria de visitas/clics y ranking por categoría.
-
-**Importante:** estas rutas están en la rama GitHub QA y pasan revisión sintáctica, pero no deben considerarse operativas hasta desplegar el bundle corregido y probar HTTP contra la Function activa.
+## Estado de migración
+La Data API ya está habilitada en QA y se aplicó la migración `0003_neon_data_api_security.sql`. La integración de las pantallas nativas y la sustitución de las llamadas heredadas siguen pendientes de implementación y pruebas de navegador. La antigua Function `lausapi` queda fuera de uso para el nuevo flujo.
