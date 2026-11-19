@@ -7,7 +7,7 @@ Tienda digital de joyería, accesorios y moda. Frontend nativo, responsive y sin
 - **Tienda pública:** HTML5, CSS3 y JavaScript ES6 en `index.html`.
 - **Panel privado:** LAU'S STUDIO en `admin.html`.
 - **Estilos y lógica:** `assets/`.
-- **Backend:** Neon Functions (Node.js 24) + PostgreSQL.
+- **Backend de datos:** Neon Data API (PostgREST) + PostgreSQL, con Neon Auth y RLS. Sin API personalizada en Neon Functions.
 - **Imágenes:** Neon Object Storage.
 - **Repositorio:** GitHub.
 
@@ -40,7 +40,7 @@ También puedes usar VS Code Live Server abriendo `index.html`.
 
 ## Estado funcional
 
-La tienda y el panel consumen datos de Neon cuando la API de QA está desplegada y configurada. No introducir datos ficticios como si fueran inventario real. La validación funcional de persistencia, autorización y cargas de Object Storage debe realizarse contra QA antes de usar el sistema operativamente.
+La tienda y el panel consumirán Neon Data API por HTTPS. La integración nativa del frontend está en migración y aún no debe considerarse operativa hasta completar sus pruebas. No introducir datos ficticios como si fueran inventario real. La validación funcional de persistencia, autorización y cargas de Object Storage debe realizarse contra QA antes de usar el sistema operativamente.
 
 ## QA y producción
 
@@ -87,4 +87,4 @@ El PDF de catálogo es la fuente para importar productos, imágenes, precios y r
 
 ## Empaquetado y despliegue de QA
 
-El workflow `Static QA package` valida sintaxis JavaScript, instala dependencias del backend, empaqueta `backend/functions/api/index.mjs` con `esbuild` para Node.js 24 y genera artefactos `laus-neon-function-bundle` y `laus-accesorios-qa`. El bundle de Neon debe ser autocontenido e incluir `pg` y los SDK de Object Storage; nunca desplegar el archivo fuente sin empaquetar. Desplegar únicamente en la rama Neon QA `br-broad-block-bc99rqv7`. No modificar `main` ni producción sin autorización expresa.
+El workflow `Static QA package` debe validarse y actualizarse para empaquetar únicamente el frontend estático y sus pruebas. No se debe volver a compilar ni desplegar `lausapi` como parte del flujo. La rama Neon QA `br-broad-block-bc99rqv7` es el único destino de esta migración. No modificar `main` ni producción sin autorización expresa.
