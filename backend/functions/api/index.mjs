@@ -1,86 +1,51 @@
 import pg from "pg";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 const { Pool } = pg;
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5 });
-const authBase = process.env.NEON_AUTH_BASE_URL;
-const corsOrigin = (origin) => {
-  if (!origin) return "https://github.com";
-  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return origin;
-  return process.env.APP_ORIGIN === origin ? origin : "";
-};
-function json(data,status=200,headers={}) { return new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store",...headers}}); }
-async function sessionFrom(request) {
-  if (!authBase) return null;
-  const cookie=request.headers.get("cookie");
-  if (!cookie) return null;
-  const response=await fetch(authBase.replace(/\/$/,"")+"/get-session",{headers:{cookie,origin:request.headers.get("origin")||""}});
-  if (!response.ok) return null;
-  const body=await response.json().catch(()=>null);
-  return body?.user?.id ? body : null;
-}
-async function requireAdmin(request) {
-  const session=await sessionFrom(request);
-  if (!session) return {error:json({error:"unauthorized"},401)};
-  const {rows}=await pool.query('SELECT role, display_name FROM public.admin_profiles WHERE user_id=$1 LIMIT 1',[session.user.id]);
-  if (!rows.length) return {error:json({error:"forbidden"},403)};
-  return {user:session.user,profile:rows[0]};
-}
-const allowedEvents=new Set(["store_visit","product_view","search","add_to_cart","whatsapp_click","pdf_download"]);
-export default { async fetch(request) {
-  const origin=request.headers.get("origin")||"";
-  const allow=corsOrigin(origin);
-  if (request.method==="OPTIONS") return new Response(null,{status:204,headers:{"access-control-allow-origin":allow||"null","access-control-allow-credentials":"true","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"content-type","vary":"Origin"}});
-  const headers={"access-control-allow-origin":allow||"null","access-control-allow-credentials":"true","vary":"Origin"};
-  if (origin && !allow) return json({error:"origin_not_allowed"},403,headers);
-  const url=new URL(request.url), path=url.pathname.replace(/\/$/,"");
-  try {
-    if (path==="/api/health" && request.method==="GET") return json({ok:true,service:"laus-api",branch:process.env.NEON_BRANCH||"unknown"},200,headers);
-    if (path==="/api/events" && request.method==="POST") {
-      const body=await request.json();
-      if (!allowedEvents.has(body.event_type)) return json({error:"invalid_event_type"},400,headers);
-      const sessionKey=String(body.session_key||"").slice(0,100);
-      if (!sessionKey) return json({error:"session_key_required"},400,headers);
-      const productId=body.product_id||null, categoryId=body.category_id||null;
-      const metadata=body.metadata&&typeof body.metadata==="object"?JSON.stringify(body.metadata):"{}";
-      await pool.query("INSERT INTO public.catalog_events(event_type,product_id,category_id,session_key,metadata) VALUES($1,$2,$3,$4,$5::jsonb)",[body.event_type,productId,categoryId,sessionKey,metadata]);
-      return json({ok:true},201,headers);
-    }
-    if (path==="/api/admin/session" && request.method==="GET") {
-      const auth=await requireAdmin(request); if(auth.error)return auth.error;
-      return json({authorized:true,user:{id:auth.user.id,name:auth.profile.display_name,role:auth.profile.role}},200,headers);
-    }
-    if (path==="/api/admin/metrics" && request.method==="GET") {
-      const auth=await requireAdmin(request); if(auth.error)return auth.error;
-      const days=Math.min(90,Math.max(1,Number(url.searchParams.get("days")||30)));
-      const visitors=await pool.query("SELECT count(DISTINCT session_key)::int AS value FROM catalog_events WHERE event_type='store_visit' AND created_at>=now()-($1::int * interval '1 day')",[days]);
-      const whatsapp=await pool.query("SELECT count(*)::int AS value FROM catalog_events WHERE event_type='whatsapp_click' AND created_at>=now()-($1::int * interval '1 day')",[days]);
-      const product=await pool.query("SELECT p.id,p.name,p.reference,count(*)::int AS views FROM catalog_events e JOIN products p ON p.id=e.product_id WHERE e.event_type='product_view' AND e.created_at>=now()-($1::int * interval '1 day') GROUP BY p.id ORDER BY views DESC LIMIT 1",[days]);
-      const category=await pool.query("SELECT c.id,c.name,count(*)::int AS views FROM catalog_events e JOIN categories c ON c.id=e.category_id WHERE e.event_type='product_view' AND e.created_at>=now()-($1::int * interval '1 day') GROUP BY c.id ORDER BY views DESC LIMIT 1",[days]);
-      return json({days,visitors:visitors.rows[0].value,whatsapp_clicks:whatsapp.rows[0].value,top_product:product.rows[0]||null,top_category:category.rows[0]||null},200,headers);
-    }
-    if (path==="/api/admin/sales" && request.method==="GET") {
-      const auth=await requireAdmin(request); if(auth.error)return auth.error;
-      const result=await pool.query("SELECT id,sale_number,customer_name,channel,status,total_cop,notes,created_at FROM public.sales ORDER BY created_at DESC LIMIT 200");
-      return json({sales:result.rows},200,headers);
-    }
-    if (path==="/api/admin/sales" && request.method==="POST") {
-      const auth=await requireAdmin(request); if(auth.error)return auth.error;
-      const body=await request.json(), total=Number(body.total_cop);
-      if(!Number.isSafeInteger(total)||total<=0) return json({error:"invalid_total"},400,headers);
-      const channel=["whatsapp","direct","other"].includes(body.channel)?body.channel:"other";
-      const client=await pool.connect();
-      try {
-        await client.query("BEGIN");
-        const inserted=await client.query("INSERT INTO public.sales(customer_name,channel,total_cop,notes,actor_user_id) VALUES($1,$2,$3,$4,$5) RETURNING id,sale_number,created_at",[String(body.customer_name||"").slice(0,160),channel,total,String(body.notes||"").slice(0,1000),auth.user.id]);
-        const sale=inserted.rows[0];
-        for(const item of (Array.isArray(body.items)?body.items:[]).slice(0,100)){
-          const qty=Number(item.quantity), price=Number(item.unit_price_cop);
-          if(!Number.isSafeInteger(qty)||qty<1||!Number.isSafeInteger(price)||price<0) throw new Error("invalid_sale_item");
-          await client.query("INSERT INTO public.sale_items(sale_id,product_id,product_reference,product_name,quantity,unit_price_cop,line_total_cop) VALUES($1,$2,$3,$4,$5,$6,$7)",[sale.id,item.product_id||null,String(item.reference||"").slice(0,80),String(item.name||"").slice(0,180),qty,price,qty*price]);
-        }
-        await client.query("COMMIT");
-        return json({sale},201,headers);
-      } catch(error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
-    }
-    return json({error:"not_found"},404,headers);
-  } catch(error) { console.error("laus-api",error); return json({error:"internal_error"},500,headers); }
-} };
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5, idleTimeoutMillis: 30000 });
+const authBase = process.env.NEON_AUTH_BASE_URL || process.env.NEON_AUTH_BASE_URL;
+const bucket = "laus-product-images";
+const s3 = process.env.AWS_ENDPOINT_URL_S3 ? new S3Client({region:process.env.AWS_REGION||"us-east-1",endpoint:process.env.AWS_ENDPOINT_URL_S3,forcePathStyle:true,credentials:{accessKeyId:process.env.AWS_ACCESS_KEY_ID,secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY}}) : null;
+const allowedEvents = new Set(["store_visit","product_view","search","add_to_cart","whatsapp_click","pdf_download"]);
+const json=(data,status=200,headers={})=>new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store",...headers}});
+const slugify=value=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,90);
+const safeText=(value,max=500)=>String(value??"").trim().slice(0,max);
+const corsOrigin=origin=>{if(!origin)return "";if(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))return origin;return process.env.APP_ORIGIN===origin?origin:"";};
+function corsHeaders(origin){const allowed=corsOrigin(origin);return {"access-control-allow-origin":allowed||"null","access-control-allow-credentials":"true","access-control-allow-methods":"GET,POST,PATCH,DELETE,OPTIONS","access-control-allow-headers":"content-type","vary":"Origin"};}
+async function sessionFrom(request){if(!authBase)return null;const cookie=request.headers.get("cookie");if(!cookie)return null;const response=await fetch(authBase.replace(/\/$/,"")+"/get-session",{headers:{cookie,origin:request.headers.get("origin")||""}});if(!response.ok)return null;const body=await response.json().catch(()=>null);return body?.user?.id?body:null;}
+async function requireAdmin(request){const session=await sessionFrom(request);if(!session)return {error:json({error:"unauthorized"},401)};const {rows}=await pool.query("SELECT role,display_name FROM public.admin_profiles WHERE user_id=$1 LIMIT 1",[session.user.id]);if(!rows.length)return {error:json({error:"forbidden"},403)};return {user:session.user,profile:rows[0]};}
+async function signedImage(key){if(!s3)return null;return getSignedUrl(s3,new GetObjectCommand({Bucket:bucket,Key:key}),{expiresIn:3600});}
+async function productRows(where="p.status='published'",params=[]){const result=await pool.query(`SELECT p.id,p.reference,p.name,p.slug,p.description,p.price_cop,p.status,p.availability_override,p.is_featured,p.category_id,c.name AS category_name,COALESCE(i.quantity_on_hand,0)::int AS stock,COALESCE(json_agg(json_build_object('id',pi.id,'key',pi.object_key,'alt',pi.alt_text,'sort_order',pi.sort_order)) FILTER(WHERE pi.id IS NOT NULL),'[]'::json) AS images FROM public.products p LEFT JOIN public.categories c ON c.id=p.category_id LEFT JOIN public.inventory i ON i.product_id=p.id AND i.variant_id IS NULL LEFT JOIN public.product_images pi ON pi.product_id=p.id WHERE ${where} GROUP BY p.id,c.name,i.quantity_on_hand ORDER BY p.is_featured DESC,p.published_at DESC NULLS LAST,p.created_at DESC`,params);return Promise.all(result.rows.map(async row=>({...row,images:await Promise.all(row.images.map(async img=>({...img,url:await signedImage(img.key)}))),image_url:row.images?.[0]?.key?await signedImage(row.images[0].key):null})));}
+async function bodyOf(request){try{return await request.json()}catch{return null}}
+export default {async fetch(request){
+ const origin=request.headers.get("origin")||"",headers=corsHeaders(origin);
+ if(request.method==="OPTIONS")return new Response(null,{status:204,headers});
+ if(origin&&!corsOrigin(origin))return json({error:"origin_not_allowed"},403,headers);
+ const url=new URL(request.url),path=url.pathname.replace(/\/$/,"");
+ try{
+  if(path==="/api/health"&&request.method==="GET")return json({ok:true,service:"laus-api",branch:process.env.NEON_BRANCH||"unknown",storage:!!s3},200,headers);
+  if(path==="/api/events"&&request.method==="POST"){const b=await bodyOf(request);if(!b||!allowedEvents.has(b.event_type))return json({error:"invalid_event_type"},400,headers);const key=safeText(b.session_key,100);if(!key)return json({error:"session_key_required"},400,headers);await pool.query("INSERT INTO public.catalog_events(event_type,product_id,category_id,session_key,metadata) VALUES($1,$2,$3,$4,$5::jsonb)",[b.event_type,b.product_id||null,b.category_id||null,key,JSON.stringify(b.metadata&&typeof b.metadata==="object"?b.metadata:{})]);return json({ok:true},201,headers);}
+  if(path==="/api/products"&&request.method==="GET"){const category=url.searchParams.get("category"),search=safeText(url.searchParams.get("q"),80);let where="p.status='published'",params=[];if(category){params.push(category);where+=" AND (c.slug=$"+params.length+" OR c.name=$"+params.length+")";}if(search){params.push("%"+search.replace(/[%_]/g,"\\$&")+"%");where+=" AND (p.name ILIKE $"+params.length+" OR p.reference ILIKE $"+params.length+")";}const items=await productRows(where,params);return json({products:items},200,{...headers,"cache-control":"public, max-age=30"});}
+  if(path==="/api/categories"&&request.method==="GET"){const r=await pool.query("SELECT id,name,slug,description,sort_order FROM public.categories WHERE is_visible=true ORDER BY sort_order,name");return json({categories:r.rows},200,headers);}
+  const auth=await requireAdmin(request);if(auth.error)return json({error:auth.error.status===401?"unauthorized":"forbidden"},auth.error.status,headers);
+  if(path==="/api/admin/session"&&request.method==="GET")return json({authorized:true,user:{id:auth.user.id,name:auth.profile.display_name,role:auth.profile.role}},200,headers);
+  if(path==="/api/admin/metrics"&&request.method==="GET"){const days=Math.min(90,Math.max(1,Number(url.searchParams.get("days")||30)));const [visitors,whatsapp,product,category]=await Promise.all([pool.query("SELECT count(DISTINCT session_key)::int AS value FROM catalog_events WHERE event_type='store_visit' AND created_at>=now()-($1::int*interval '1 day')",[days]),pool.query("SELECT count(*)::int AS value FROM catalog_events WHERE event_type='whatsapp_click' AND created_at>=now()-($1::int*interval '1 day')",[days]),pool.query("SELECT p.name,count(*)::int AS views FROM catalog_events e JOIN products p ON p.id=e.product_id WHERE e.event_type='product_view' AND e.created_at>=now()-($1::int*interval '1 day') GROUP BY p.id ORDER BY views DESC LIMIT 1",[days]),pool.query("SELECT c.name,count(*)::int AS views FROM catalog_events e JOIN categories c ON c.id=e.category_id WHERE e.event_type='product_view' AND e.created_at>=now()-($1::int*interval '1 day') GROUP BY c.id ORDER BY views DESC LIMIT 1",[days])]);return json({days,visitors:visitors.rows[0].value,whatsapp_clicks:whatsapp.rows[0].value,top_product:product.rows[0]||null,top_category:category.rows[0]||null},200,headers);}
+  if(path==="/api/admin/products"&&request.method==="GET")return json({products:await productRows("TRUE")},200,headers);
+  if(path==="/api/admin/products"&&request.method==="POST"){const b=await bodyOf(request);if(!b?.name||!b?.reference||!Number.isSafeInteger(Number(b.price_cop))||Number(b.price_cop)<0)return json({error:"invalid_product"},400,headers);const slug=slugify(b.slug||b.name)+"-"+slugify(b.reference);const r=await pool.query("INSERT INTO products(reference,name,slug,description,price_cop,status,category_id,is_featured,availability_override) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *",[safeText(b.reference,80),safeText(b.name,180),slug,safeText(b.description,2000),Number(b.price_cop),["draft","published","archived"].includes(b.status)?b.status:"draft",b.category_id||null,!!b.is_featured,b.availability_override||null]);return json({product:r.rows[0]},201,headers);}
+  let m=path.match(/^\/api\/admin\/products\/([0-9a-f-]{36})$/i);if(m&&request.method==="PATCH"){const b=await bodyOf(request);const fields={name:["name",180],reference:["reference",80],description:["description",2000],status:["status",20],price_cop:["price_cop"],category_id:["category_id"],is_featured:["is_featured"],availability_override:["availability_override"]};const sets=[],values=[];for(const [key,val] of Object.entries(b||{})){if(!fields[key])continue;values.push(key==="price_cop"?Number(val):["is_featured"].includes(key)?!!val:["name","reference","description","status"].includes(key)?safeText(val,fields[key][1]):val);sets.push(fields[key][0]+"=$"+values.length);}if(!sets.length)return json({error:"no_fields"},400,headers);sets.push("updated_at=now()");values.push(m[1]);const r=await pool.query("UPDATE products SET "+sets.join(",")+" WHERE id=$"+values.length+" RETURNING *",values);return r.rowCount?json({product:r.rows[0]},200,headers):json({error:"not_found"},404,headers);}
+  if(path==="/api/admin/categories"&&request.method==="GET"){const r=await pool.query("SELECT * FROM categories ORDER BY sort_order,name");return json({categories:r.rows},200,headers);}
+  if(path==="/api/admin/categories"&&request.method==="POST"){const b=await bodyOf(request);if(!b?.name)return json({error:"name_required"},400,headers);const r=await pool.query("INSERT INTO categories(name,slug,description,sort_order,is_visible) VALUES($1,$2,$3,$4,$5) RETURNING *",[safeText(b.name,120),slugify(b.slug||b.name),safeText(b.description,1000),Number(b.sort_order)||0,b.is_visible!==false]);return json({category:r.rows[0]},201,headers);}
+  if(path==="/api/admin/inventory"&&request.method==="GET"){const r=await pool.query("SELECT i.*,p.name,p.reference,v.label AS variant_label FROM inventory i JOIN products p ON p.id=i.product_id LEFT JOIN product_variants v ON v.id=i.variant_id ORDER BY p.name");return json({inventory:r.rows},200,headers);}
+  if(path==="/api/admin/inventory/adjust"&&request.method==="POST"){const b=await bodyOf(request),qty=Number(b?.quantity_delta);if(!b?.product_id||!Number.isSafeInteger(qty)||qty===0)return json({error:"invalid_adjustment"},400,headers);const client=await pool.connect();try{await client.query("BEGIN");const inv=await client.query("INSERT INTO inventory(product_id,variant_id,quantity_on_hand) VALUES($1,$2,0) ON CONFLICT(product_id,variant_id) DO UPDATE SET updated_at=now() RETURNING *",[b.product_id,b.variant_id||null]);const current=await client.query("SELECT * FROM inventory WHERE id=$1 FOR UPDATE",[inv.rows[0].id]);if(current.rows[0].quantity_on_hand+qty<0)throw new Error("stock_would_be_negative");const updated=await client.query("UPDATE inventory SET quantity_on_hand=quantity_on_hand+$2,updated_at=now() WHERE id=$1 RETURNING *",[inv.rows[0].id,qty]);await client.query("INSERT INTO inventory_movements(inventory_id,movement_type,quantity_delta,note,actor_user_id) VALUES($1,$2,$3,$4,$5)",[inv.rows[0].id,["restock","sale","return","damage","opening"].includes(b.movement_type)?b.movement_type:"adjustment",qty,safeText(b.note,500),auth.user.id]);await client.query("COMMIT");return json({inventory:updated.rows[0]},200,headers);}catch(e){await client.query("ROLLBACK");throw e;}finally{client.release();}}
+  if(path==="/api/admin/collections"&&request.method==="GET"){const r=await pool.query("SELECT * FROM collections ORDER BY sort_order,name");return json({collections:r.rows},200,headers);}
+  if(path==="/api/admin/collections"&&request.method==="POST"){const b=await bodyOf(request);if(!b?.name)return json({error:"name_required"},400,headers);const r=await pool.query("INSERT INTO collections(name,slug,description,collection_type,is_active,starts_at,ends_at) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *",[safeText(b.name,120),slugify(b.slug||b.name),safeText(b.description,1500),["general","seasonal","campaign"].includes(b.collection_type)?b.collection_type:"seasonal",!!b.is_active,b.starts_at||null,b.ends_at||null]);return json({collection:r.rows[0]},201,headers);}
+  if(path==="/api/admin/promotions"&&request.method==="GET"){const r=await pool.query("SELECT * FROM promotions ORDER BY starts_at DESC");return json({promotions:r.rows},200,headers);}
+  if(path==="/api/admin/promotions"&&request.method==="POST"){const b=await bodyOf(request);if(!b?.name||!b.starts_at||!b.ends_at)return json({error:"invalid_promotion"},400,headers);const r=await pool.query("INSERT INTO promotions(name,description,discount_type,discount_value,starts_at,ends_at,is_active) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *",[safeText(b.name,120),safeText(b.description,1500),b.discount_type==="fixed_amount"?"fixed_amount":"percentage",Number(b.discount_value),b.starts_at,b.ends_at,!!b.is_active]);return json({promotion:r.rows[0]},201,headers);}
+  if(path==="/api/admin/sales"&&request.method==="GET"){const r=await pool.query("SELECT id,sale_number,customer_name,channel,status,total_cop,notes,created_at FROM sales ORDER BY created_at DESC LIMIT 200");return json({sales:r.rows},200,headers);}
+  if(path==="/api/admin/sales"&&request.method==="POST"){const b=await bodyOf(request),total=Number(b?.total_cop);if(!Number.isSafeInteger(total)||total<=0)return json({error:"invalid_total"},400,headers);const channel=["whatsapp","direct","other"].includes(b.channel)?b.channel:"other";const r=await pool.query("INSERT INTO sales(customer_name,channel,total_cop,notes,actor_user_id) VALUES($1,$2,$3,$4,$5) RETURNING id,sale_number,created_at",[safeText(b.customer_name,160),channel,total,safeText(b.notes,1000),auth.user.id]);return json({sale:r.rows[0]},201,headers);}
+  if(path==="/api/admin/images/upload-url"&&request.method==="POST"){if(!s3)return json({error:"storage_not_configured"},503,headers);const b=await bodyOf(request);if(!b?.product_id||!b?.file_name||!/^image\/(jpeg|png|webp|avif)$/.test(b.content_type||""))return json({error:"invalid_image"},400,headers);const key="products/"+b.product_id+"/"+crypto.randomUUID()+"-"+slugify(b.file_name);const command=new PutObjectCommand({Bucket:bucket,Key:key,ContentType:b.content_type,CacheControl:"public,max-age=31536000,immutable"});const upload_url=await getSignedUrl(s3,command,{expiresIn:600});return json({upload_url,method:"PUT",headers:{"content-type":b.content_type},object_key:key,expires_in:600},200,headers);}
+  if(path==="/api/admin/images"&&request.method==="POST"){const b=await bodyOf(request);if(!b?.product_id||!b?.object_key||!String(b.object_key).startsWith("products/"+b.product_id+"/"))return json({error:"invalid_image_metadata"},400,headers);const r=await pool.query("INSERT INTO product_images(product_id,object_key,alt_text,sort_order,width,height) VALUES($1,$2,$3,$4,$5,$6) RETURNING *",[b.product_id,b.object_key,safeText(b.alt_text,240),Number(b.sort_order)||0,b.width||null,b.height||null]);return json({image:r.rows[0]},201,headers);}
+  m=path.match(/^\/api\/admin\/images\/([0-9a-f-]{36})$/i);if(m&&request.method==="DELETE"){const r=await pool.query("DELETE FROM product_images WHERE id=$1 RETURNING bucket_name,object_key",[m[1]]);if(!r.rowCount)return json({error:"not_found"},404,headers);if(s3)await s3.send(new DeleteObjectCommand({Bucket:r.rows[0].bucket_name,Key:r.rows[0].object_key}));return json({deleted:true},200,headers);}
+  return json({error:"not_found"},404,headers);
+ }catch(error){console.error("laus-api",error);return json({error:"internal_error",detail:process.env.NODE_ENV==="development"?String(error.message):undefined},500,headers);}
+}};
