@@ -24,3 +24,9 @@ CREATE TABLE IF NOT EXISTS public.sale_items (
 CREATE INDEX IF NOT EXISTS sales_created_at_idx ON public.sales(created_at DESC);
 CREATE INDEX IF NOT EXISTS sale_items_product_idx ON public.sale_items(product_id);
 -- No public write policies. Writes must pass through an authenticated admin API.
+-- Extend analytics with one visit event per anonymous session/day.
+ALTER TABLE public.catalog_events DROP CONSTRAINT IF EXISTS catalog_events_event_type_check;
+ALTER TABLE public.catalog_events ADD CONSTRAINT catalog_events_event_type_check
+  CHECK (event_type IN ('store_visit','product_view','search','add_to_cart','whatsapp_click','pdf_download'));
+CREATE INDEX IF NOT EXISTS catalog_events_session_created_idx
+  ON public.catalog_events(session_key, created_at DESC);
