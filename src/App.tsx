@@ -26,12 +26,14 @@ export default function App() {
   const [category,setCategory] = useState<Category>('Todos')
   const [query,setQuery] = useState('')
   const [showCart,setShowCart] = useState(false)
+  const [selectedProduct,setSelectedProduct] = useState<Product|null>(null)
   const [showAdmin,setShowAdmin] = useState(false)
   const [activeTab,setActiveTab] = useState('Resumen')
   const [mobileMenu,setMobileMenu] = useState(false)
   const [notice,setNotice] = useState('')
   const [form,setForm] = useState({name:'',category:'Aretes' as Product['category'],price:'',stock:'',image:'',description:''})
   useEffect(()=>{ localStorage.setItem('laus-products',JSON.stringify(products)) },[products])
+  useEffect(()=>{ if(!selectedProduct)return; const onKey=(event:KeyboardEvent)=>{if(event.key==='Escape')setSelectedProduct(null)}; window.addEventListener('keydown',onKey); const previous=document.body.style.overflow; document.body.style.overflow='hidden'; return ()=>{window.removeEventListener('keydown',onKey);document.body.style.overflow=previous} },[selectedProduct])
   const visible = useMemo(()=>products.filter(p=>(category==='Todos'||p.category===category)&&p.name.toLowerCase().includes(query.toLowerCase())),[products,category,query])
   const total = cart.reduce((sum,line)=>sum+line.product.price*line.quantity,0)
   const cartCount = cart.reduce((sum,line)=>sum+line.quantity,0)
@@ -78,7 +80,7 @@ export default function App() {
         <section className="catalog-section" id="coleccion">
           <div className="section-heading"><div><span className="eyebrow">ENCUENTRA TU FAVORITO</span><h2>Una colección <i>para ti.</i></h2></div><label className="search-box"><Search size={17}/><input id="catalog-search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar joyas, accesorios..."/></label></div>
           <div className="category-row">{categories.map(c=><button key={c} className={category===c?'category-chip active':'category-chip'} onClick={()=>setCategory(c)}>{c}<span>↗</span></button>)}</div>
-          <div className="product-grid">{visible.map((p,i)=><article className="product-card" key={p.id} style={{'--delay':`${i*60}ms`} as CSSProperties}><div className="product-photo"><img src={p.image} alt={p.name}/>{p.badge&&<span className="product-badge">{p.badge}</span>}<button className="quick-add" onClick={()=>add(p)} aria-label={`Agregar ${p.name}`}><Plus size={18}/></button></div><div className="product-meta"><div><span className="product-category">{p.category}</span><h3>{p.name}</h3></div><strong>{money(p.price)}</strong></div><span className={p.stock>0?'stock in-stock':'stock out-stock'}>{p.stock>0?`Disponible · ${p.stock} unidades`:'Agotado · Consulta disponibilidad'}</span></article>)}</div>
+          <div className="product-grid">{visible.map((p,i)=><article className="product-card" onClick={()=>setSelectedProduct(p)} tabIndex={0} role="button" key={p.id} style={{'--delay':`${i*60}ms`} as CSSProperties}><div className="product-photo"><img src={p.image} alt={p.name}/>{p.badge&&<span className="product-badge">{p.badge}</span>}<button className="quick-add" onClick={e=>{e.stopPropagation();add(p)}} aria-label={`Agregar ${p.name}`}><Plus size={18}/></button></div><div className="product-meta"><div><span className="product-category">{p.category}</span><h3>{p.name}</h3></div><strong>{money(p.price)}</strong></div><span className={p.stock>0?'stock in-stock':'stock out-stock'}>{p.stock>0?`Disponible · ${p.stock} unidades`:'Agotado · Consulta disponibilidad'}</span></article>)}</div>
           {visible.length===0&&<div className="empty-state">No encontramos productos con esa búsqueda. Prueba otra palabra.</div>}
         </section>
         <section className="promo-band"><div><span className="eyebrow">UN TOQUE EXTRA DE MAGIA</span><h2>Tu estilo,<br/><i>tu universo.</i></h2><p>Combina, juega y encuentra piezas que hablen de ti.</p><a href="#coleccion" className="light-pill">Ver colección <ArrowRight size={16}/></a></div><div className="promo-orb">✧</div></section>
@@ -87,6 +89,22 @@ export default function App() {
       <footer><a className="wordmark" href="#">Lau's<span>Accesorios</span><i>✳</i></a><span>Brilla a tu manera. © {new Date().getFullYear()} Lau's Accesorios</span><div><a href="#coleccion">Colección</a><a href="#historia">Nosotros</a><a href="https://wa.link/3ozvv4" target="_blank" rel="noreferrer">WhatsApp</a><button onClick={()=>setShowAdmin(true)}>Administración</button></div></footer>
     </> : <Admin products={products} setProducts={setProducts} activeTab={activeTab} setActiveTab={setActiveTab} form={form} setForm={setForm} saveProduct={saveProduct} downloadCatalog={downloadCatalog} onExit={()=>setShowAdmin(false)}/>}
     </div>
+    {selectedProduct&&<div className="product-lightbox" role="presentation" onClick={()=>setSelectedProduct(null)}>
+      <div className="lightbox-halo" aria-hidden="true"></div>
+      <section className="product-glass-card" role="dialog" aria-modal="true" aria-label={"Detalle de "+selectedProduct.name} onClick={e=>e.stopPropagation()}>
+        <button className="glass-close" onClick={()=>setSelectedProduct(null)} aria-label="Cerrar detalle"><X size={19}/></button>
+        <div className="glass-image-wrap"><img src={selectedProduct.image} alt={selectedProduct.name}/>{selectedProduct.badge&&<span className="glass-badge">{selectedProduct.badge}</span>}</div>
+        <div className="glass-content">
+          <span className="eyebrow">{selectedProduct.category.toUpperCase()} · LAUS ACCESORIOS</span>
+          <div className="glass-title-row"><h2>{selectedProduct.name}</h2><strong>{money(selectedProduct.price)}</strong></div>
+          <p>{selectedProduct.description||"Una pieza especial para acompañar tu estilo."}</p>
+          <div className="glass-stock"><span className={selectedProduct.stock>0?"stock-dot":"stock-dot unavailable"}></span>{selectedProduct.stock>0?"Disponible · "+selectedProduct.stock+" unidades":"Agotado · Consulta disponibilidad"}</div>
+          {selectedProduct.sizes?.length?<div className="glass-sizes"><span>Tallas disponibles</span><div>{selectedProduct.sizes.map(size=><span key={size}>{size}</span>)}</div></div>:null}
+          {selectedProduct.stock>0?<button className="glass-primary" onClick={()=>{add(selectedProduct);setSelectedProduct(null)}}>Añadir a mi bolsita <ShoppingBag size={17}/></button>:<button className="glass-primary" onClick={()=>{window.open(waCatalogLink,"_blank","noopener,noreferrer")}}>Consultar por WhatsApp <MessageCircle size={17}/></button>}
+          <button className="glass-secondary" onClick={()=>setSelectedProduct(null)}>Seguir explorando</button>
+        </div>
+      </section>
+    </div>}
     {showCart&&<div className="drawer-backdrop" onClick={()=>setShowCart(false)}><aside className="cart-drawer" onClick={e=>e.stopPropagation()}><div className="drawer-head"><div><span className="eyebrow">TU SELECCIÓN</span><h2>Tu bolsita <i>♥</i></h2></div><button className="icon-btn" onClick={()=>setShowCart(false)}><X/></button></div>{cart.length===0?<div className="empty-state">Tu bolsita está esperando algo bonito ✨</div>:<><div className="cart-lines">{cart.map(line=><div className="cart-line" key={line.product.id}><img src={line.product.image} alt={line.product.name}/><div className="cart-line-info"><b>{line.product.name}</b><span>{money(line.product.price)}</span><div className="qty"><button onClick={()=>changeQty(line.product.id,-1)}>−</button>{line.quantity}<button onClick={()=>changeQty(line.product.id,1)}>+</button></div></div><button className="remove-btn" onClick={()=>setCart(old=>old.filter(x=>x.product.id!==line.product.id))}><Trash2 size={16}/></button></div>)}</div><div className="cart-total"><span>Total estimado</span><b>{money(total)}</b></div><p className="cart-note">El envío y la disponibilidad se coordinan directamente por WhatsApp.</p><button className="checkout-btn" onClick={checkout}>Continuar por WhatsApp <MessageCircle size={18}/></button></>}</aside></div>}
     {notice&&<button className="toast" onClick={()=>setNotice('')}>{notice}<X size={14}/></button>}
   </div>
