@@ -29,3 +29,9 @@ body{background:linear-gradient(135deg,#d8dce9 0%,#f4dfe8 48%,#cbd6e9 100%)}
 #home .heading{padding:6px 2px 12px}#home .heading h2{font-size:29px;letter-spacing:-1px}
 .auth-switch{border:0;background:transparent;color:#806dbb;font-size:11px;padding:8px;text-decoration:underline}
 @media(max-width:650px){.logo-image{display:none}.admin-head-actions{gap:6px}.logout-admin{padding:8px;font-size:9px}}
+
+/* Seguimiento de solicitudes WhatsApp y acciones de catálogo */
+.orders-list{display:grid;gap:10px}.order-row{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:15px;border:1px solid #eee5ef;border-radius:15px;background:#fff}.order-row>div:first-child{display:grid;gap:6px;min-width:0}.order-row small{font-size:11px;color:#887e90;line-height:1.5}.order-row button{border:1px solid #e9dce9;border-radius:18px;background:#fff;padding:8px 11px;font-size:10px;color:#66548f;margin:2px}.order-row button:first-child{background:#eee9fb;color:#6551a4}.orders-card{margin-bottom:20px}.quick{display:flex;align-items:center;gap:12px;width:100%;text-align:left;text-decoration:none;border:0;cursor:pointer}.quick span{flex:1}.social-link{margin-top:8px}.bulk-hint{margin:14px 0;color:#8e8496;font-size:11px;line-height:1.6}.bulk-hint a{color:#725db4;text-decoration:underline}.catalog-actions{display:flex;gap:10px;flex-wrap:wrap}.product-admin-row button{white-space:nowrap}.product-admin-row [data-social-image]{background:#f8edf3;border-color:#ead5e0;color:#9d6682}
+#product-modal .close{position:absolute;right:22px;top:22px;border:0;border-radius:50%;width:34px;height:34px;background:#f1f0f3;font-size:22px;cursor:pointer}
+#product-modal form{position:relative}
+@media(max-width:700px){.order-row{align-items:flex-start;flex-direction:column}.catalog-actions{width:100%}.catalog-actions button{flex:1}.product-admin-row{flex-wrap:wrap}.product-admin-row>div{width:100%}}
