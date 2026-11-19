@@ -59,7 +59,7 @@ El PDF de catálogo es la fuente para importar productos, imágenes, precios y r
 - Authentication provider: Neon Auth / Better Auth.
 - Exposed schema: `public`; anonymous role: `anonymous`; broad default grants disabled.
 - RLS is enabled on all 15 public tables. Public read access is restricted to catalog data; authenticated writes require `public.is_laus_admin()`.
-- The former `lausapi` Neon Function is deprecated and must not be used by the frontend.
+- The former `lausapi` Neon Function has been deleted from QA. Only `lausimgupload` remains, dedicated exclusively to issuing temporary image-upload URLs.
 - Public sign-up remains disabled. The first administrator profile has not been provisioned.
 - Object Storage bucket: `laus-product-images` (`public_read`). Uploads still require short-lived signed URLs; storage credentials must never be exposed in browser code.
 
