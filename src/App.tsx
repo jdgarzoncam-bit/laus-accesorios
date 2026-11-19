@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { CSSProperties, Dispatch, ReactNode, SetStateAction } from 'react'
-import { ArrowDown, ArrowRight, ArrowUpRight, ChartNoAxesCombined, Check, CircleHelp, Cloud, Download, Heart, LayoutDashboard, Menu, MessageCircle, Package, Plus, Search, Settings, ShoppingBag, Sparkles, Tag, Trash2, Truck, X } from 'lucide-react'
+import { ArrowDown, ArrowRight, ArrowUpRight, ChartNoAxesCombined, Check, CircleHelp, Cloud, Download, Heart, LayoutDashboard, Menu, MessageCircle, Package, Play, Plus, Search, Settings, ShoppingBag, Sprout, Sparkles, Tag, Trash2, Truck, X } from 'lucide-react'
 
-type Category = 'Todos' | 'Aretes' | 'Collares' | 'Pulseras' | 'Conjuntos' | 'Ropa'
+type Category = 'Todos' | 'Entrega inmediata' | 'Aretes' | 'Topitos' | 'Anillos' | 'Cuelga gafas' | 'Iniciales' | 'Collares' | 'Conjuntos' | 'Pulseras' | 'Earcuff' | 'Ropa'
 type Product = { id: string; name: string; category: Exclude<Category,'Todos'>; price: number; stock: number; image: string; description: string; badge?: string; sizes?: string[] }
 type CartLine = { product: Product; quantity: number; size?: string }
 
@@ -16,6 +16,7 @@ const initialProducts: Product[] = [
 ]
 const money = (n:number) => new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(n)
 const waNumber = import.meta.env.VITE_WHATSAPP_NUMBER || ''
+const waCatalogLink = 'https://wa.link/3ozvv4'
 
 export default function App() {
   const [products,setProducts] = useState<Product[]>(() => {
@@ -38,8 +39,8 @@ export default function App() {
   const changeQty = (id:string,delta:number) => setCart(old=>old.map(x=>x.product.id===id?{...x,quantity:Math.max(1,x.quantity+delta)}:x))
   const checkout = () => {
     const message=encodeURIComponent(`¡Hola, Lau's Accesorios! 💗 Quiero realizar este pedido:\n\n${cart.map(x=>`• ${x.quantity} × ${x.product.name}${x.size?` (talla ${x.size})`:''} — ${money(x.product.price*x.quantity)}`).join('\n')}\n\nTotal: ${money(total)}\n\n¿Me ayudan a coordinar disponibilidad y envío? ¡Gracias!`)
-    if(!waNumber){setNotice('Configura VITE_WHATSAPP_NUMBER para activar los pedidos.');return}
-    window.open(`https://wa.me/${waNumber}?text=${message}`,'_blank','noopener,noreferrer')
+    if(waNumber){window.open(`https://wa.me/${waNumber}?text=${message}`,'_blank','noopener,noreferrer');return}
+    window.open(waCatalogLink,'_blank','noopener,noreferrer')
   }
   const saveProduct = () => {
     if(!form.name.trim()||!form.price||!form.image.trim()){setNotice('Completa nombre, precio e imagen para guardar.');return}
@@ -47,25 +48,31 @@ export default function App() {
     setProducts(old=>[p,...old]);setForm({name:'',category:'Aretes',price:'',stock:'',image:'',description:''});setNotice('Producto guardado en este navegador.')
   }
   const downloadCatalog = () => { setShowAdmin(false); window.setTimeout(() => window.print(), 300) }
-  const categories:Category[]=['Todos','Aretes','Collares','Pulseras','Conjuntos','Ropa']
+  const categories:Category[]=['Todos','Entrega inmediata','Aretes','Topitos','Anillos','Cuelga gafas','Iniciales','Collares','Conjuntos','Pulseras','Earcuff','Ropa']
   return <div className="app-shell">
+    <div className="site-frame">
     <div className="announcement">UN PEQUEÑO DETALLE, UNA GRAN FORMA DE BRILLAR <Sparkles size={13}/></div>
     <header className="site-header">
       <button className="icon-btn mobile-only" onClick={()=>setMobileMenu(!mobileMenu)} aria-label="Abrir menú">{mobileMenu?<X/>:<Menu/>}</button>
-      <a className="wordmark" href="#" onClick={()=>setShowAdmin(false)}>Lau's<span>Accesorios</span><i>✳</i></a>
+      <a className="brand-mark" href="#" aria-label="Lau's Accesorios" onClick={()=>setShowAdmin(false)}><Sprout size={34} strokeWidth={1}/></a>
       <nav className={mobileMenu?'nav-links open':'nav-links'}>
-        <a href="#coleccion" onClick={()=>setCategory('Todos')}>Colección</a><a href="#coleccion" onClick={()=>setCategory('Aretes')}>Joyas</a><a href="#coleccion" onClick={()=>setCategory('Ropa')}>Ropa</a><a href="#historia">Nuestra esencia</a>
+        <a href="#coleccion" onClick={()=>{setCategory('Aretes');setMobileMenu(false)}}>ARETES</a><a href="#coleccion" onClick={()=>{setCategory('Collares');setMobileMenu(false)}}>COLLARES</a><a href="#coleccion" onClick={()=>{setCategory('Ropa');setMobileMenu(false)}}>ROPA</a><a href="#coleccion" onClick={()=>{setCategory('Todos');setMobileMenu(false)}}>DEMÁS</a>
       </nav>
-      <div className="header-actions"><button className="icon-btn search-toggle" onClick={()=>document.getElementById('catalog-search')?.focus()} aria-label="Buscar"><Search/></button><button className="bag-button" onClick={()=>setShowCart(true)} aria-label="Abrir carrito"><ShoppingBag size={19}/><span>{cartCount}</span></button></div>
+      <div className="header-actions"><button className="icon-btn search-toggle" onClick={()=>document.getElementById('catalog-search')?.focus()} aria-label="Buscar"><Search size={22} strokeWidth={1.5}/></button><button className="bag-button" onClick={()=>setShowCart(true)} aria-label="Abrir carrito"><ShoppingBag size={22} strokeWidth={1.5}/><span>{cartCount}</span></button></div>
     </header>
 
     {!showAdmin ? <>
       <main>
         <section className="hero">
-          <div className="hero-sky"></div><div className="hero-cloud cloud-a"></div><div className="hero-cloud cloud-b"></div><div className="hero-cloud cloud-c"></div>
-          <div className="hero-copy"><span className="eyebrow">JOYAS · ACCESORIOS · MODA</span><h1>Lau's<br/><em>Accesorios</em></h1><p>Pequeños detalles que hacen extraordinario lo cotidiano.</p><a className="dark-pill" href="#coleccion">Explorar colección <ArrowUpRight size={16}/></a></div>
-          <div className="hero-art"><div className="orbit orbit-one"></div><div className="orbit orbit-two"></div><div className="hero-jewel"><img src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1000&q=90" alt="Joyas doradas de Lau's Accesorios"/></div><div className="floating-note">made to<br/><b>shine ✧</b></div><span className="hero-star star-one">✳</span><span className="hero-star star-two">✧</span></div>
-          <div className="hero-foot"><span>01 / NUEVA TEMPORADA</span><span>HECHO PARA TI <ArrowDown size={13}/></span></div>
+          <div className="hero-sky" aria-hidden="true"></div>
+          <div className="hero-copy"><h1>LAU'S</h1><p>Joyas que cuentan tu historia.</p></div>
+          <div className="hero-jewels" aria-label="Colección de joyas doradas">
+            <img className="jewel jewel-earrings" src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=650&q=90" alt="Aretes dorados"/>
+            <img className="jewel jewel-chain" src="https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=900&q=90" alt="Collar dorado"/>
+            <img className="jewel jewel-ring" src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=650&q=90" alt="Anillo dorado"/>
+          </div>
+          <div className="hero-bottom-line"></div>
+          <a className="hero-play" href="#coleccion" aria-label="Explorar la colección"><Play size={15} fill="currentColor"/></a>
         </section>
         <section className="benefits"><div><Sparkles/><span>Detalles que enamoran</span></div><div><Truck/><span>Envíos coordinados por WhatsApp</span></div><div><Heart/><span>Encuentra tu próximo favorito</span></div></section>
         <section className="catalog-section" id="coleccion">
@@ -79,6 +86,7 @@ export default function App() {
       </main>
       <footer><a className="wordmark" href="#">Lau's<span>Accesorios</span><i>✳</i></a><span>Brilla a tu manera. © {new Date().getFullYear()} Lau's Accesorios</span><div><a href="#coleccion">Colección</a><a href="#historia">Nosotros</a><button onClick={()=>setShowAdmin(true)}>Administración</button></div></footer>
     </> : <Admin products={products} setProducts={setProducts} activeTab={activeTab} setActiveTab={setActiveTab} form={form} setForm={setForm} saveProduct={saveProduct} downloadCatalog={downloadCatalog} onExit={()=>setShowAdmin(false)}/>}
+    </div>
     {showCart&&<div className="drawer-backdrop" onClick={()=>setShowCart(false)}><aside className="cart-drawer" onClick={e=>e.stopPropagation()}><div className="drawer-head"><div><span className="eyebrow">TU SELECCIÓN</span><h2>Tu bolsita <i>♥</i></h2></div><button className="icon-btn" onClick={()=>setShowCart(false)}><X/></button></div>{cart.length===0?<div className="empty-state">Tu bolsita está esperando algo bonito ✨</div>:<><div className="cart-lines">{cart.map(line=><div className="cart-line" key={line.product.id}><img src={line.product.image} alt={line.product.name}/><div className="cart-line-info"><b>{line.product.name}</b><span>{money(line.product.price)}</span><div className="qty"><button onClick={()=>changeQty(line.product.id,-1)}>−</button>{line.quantity}<button onClick={()=>changeQty(line.product.id,1)}>+</button></div></div><button className="remove-btn" onClick={()=>setCart(old=>old.filter(x=>x.product.id!==line.product.id))}><Trash2 size={16}/></button></div>)}</div><div className="cart-total"><span>Total estimado</span><b>{money(total)}</b></div><p className="cart-note">El envío y la disponibilidad se coordinan directamente por WhatsApp.</p><button className="checkout-btn" onClick={checkout}>Continuar por WhatsApp <MessageCircle size={18}/></button></>}</aside></div>}
     {notice&&<button className="toast" onClick={()=>setNotice('')}>{notice}<X size={14}/></button>}
   </div>
