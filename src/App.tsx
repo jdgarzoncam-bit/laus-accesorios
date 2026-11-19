@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowDown, ArrowRight, ArrowUpRight, Bag, ChartNoAxesCombined, Check, ChevronDown, CircleHelp, Cloud, Download, Heart, Instagram, LayoutDashboard, Menu, MessageCircle, Package, Plus, Search, Settings, ShoppingBag, Sparkles, Tag, Trash2, Truck, X } from 'lucide-react'
+import { ArrowDown, ArrowRight, ArrowUpRight, Bag, ChartNoAxesCombined, Check, CircleHelp, Cloud, Download, Heart, LayoutDashboard, Menu, MessageCircle, Package, Plus, Search, Settings, ShoppingBag, Sparkles, Tag, Trash2, Truck, X } from 'lucide-react'
 
 type Category = 'Todos' | 'Aretes' | 'Collares' | 'Pulseras' | 'Conjuntos' | 'Ropa'
 type Product = { id: string; name: string; category: Exclude<Category,'Todos'>; price: number; stock: number; image: string; description: string; badge?: string; sizes?: string[] }
@@ -36,7 +36,6 @@ export default function App() {
   const add = (product:Product) => { if(product.stock<1){setNotice('Consulta la disponibilidad de este producto por WhatsApp.');return} setCart(old=>{const found=old.find(x=>x.product.id===product.id);return found?old.map(x=>x.product.id===product.id?{...x,quantity:x.quantity+1}:x):[...old,{product,quantity:1}]});setNotice('Agregado a tu bolsita ✨') }
   const changeQty = (id:string,delta:number) => setCart(old=>old.map(x=>x.product.id===id?{...x,quantity:Math.max(1,x.quantity+delta)}:x))
   const checkout = () => {
-    const lines=cart.map(x=>`• ${x.quantity} × ${x.product.name}${x.size?` (talla ${x.size})`:''} — ${money(x.product.price*x.quantity)}`).join('%0A')
     const message=encodeURIComponent(`¡Hola, Lau's Accesorios! 💗 Quiero realizar este pedido:\n\n${cart.map(x=>`• ${x.quantity} × ${x.product.name}${x.size?` (talla ${x.size})`:''} — ${money(x.product.price*x.quantity)}`).join('\n')}\n\nTotal: ${money(total)}\n\n¿Me ayudan a coordinar disponibilidad y envío? ¡Gracias!`)
     if(!waNumber){setNotice('Configura VITE_WHATSAPP_NUMBER para activar los pedidos.');return}
     window.open(`https://wa.me/${waNumber}?text=${message}`,'_blank','noopener,noreferrer')
