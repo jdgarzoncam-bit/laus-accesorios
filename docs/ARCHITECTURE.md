@@ -53,7 +53,7 @@ Principios:
 
 - Frontend: HTML5 + CSS3 + JavaScript ES2022 nativo; archivos estáticos servidos por cualquier hosting/CDN. No requiere React, TypeScript, Vite, npm ni Node.js en el equipo del usuario.
 - Backend gestionado: Neon Data API (PostgREST) sobre PostgreSQL, Neon Auth/Better Auth para identidad y JWT, y Neon Object Storage para fotografías.
-- No se utilizará una API de negocio personalizada desplegada como Neon Function. Las consultas CRUD irán por Data API; las operaciones transaccionales complejas se implementarán como funciones SQL/RPC protegidas por RLS.
+- No se utilizará una API de negocio personalizada desplegada como Neon image-upload signer. Las consultas CRUD irán por Data API; las operaciones transaccionales complejas se implementarán como funciones SQL/RPC protegidas por RLS.
 - Las cargas de imágenes usarán URLs prefirmadas de corta duración emitidas por un componente de firma seguro; nunca se expondrán credenciales S3 en el navegador.
 - Datos: PostgreSQL administrado por Neon.
 - Imágenes: Neon Object Storage, bucket `laus-product-images` con lectura pública para imágenes del catálogo; las escrituras se realizarán exclusivamente desde backend con credenciales restringidas y URLs prefirmadas.
@@ -268,7 +268,7 @@ Pendiente: reemplazar las llamadas `/api/*` de `assets/storefront.js` y `assets/
 
 ## 15. Decisión de alojamiento del backend — sustituida
 
-La decisión anterior de desplegar una API de negocio en Neon Functions queda **retirada**. La arquitectura vigente utiliza Neon Data API (PostgREST) directamente desde el frontend nativo, Neon Auth/Better Auth para JWT y PostgreSQL RLS/GRANTs para autorización. Las operaciones de varias escrituras se implementan como funciones SQL/RPC. No desplegar ni reparar `lausapi`.
+La decisión anterior de desplegar una API de negocio en Neon image-upload signer queda **retirada**. La arquitectura vigente utiliza Neon Data API (PostgREST) directamente desde el frontend nativo, Neon Auth/Better Auth para JWT y PostgreSQL RLS/GRANTs para autorización. Las operaciones de varias escrituras se implementan como funciones SQL/RPC. No desplegar ni reparar `legacy API (retired)`.
 
 La Data API está habilitada en la rama QA `br-broad-block-bc99rqv7`. La migración `0003_neon_data_api_security.sql` configura roles, privilegios y políticas administrativas. La integración del SDK oficial en tienda y panel, las RPC transaccionales y el mecanismo de URLs prefirmadas de Object Storage deben terminarse antes de declarar el sistema migrado y listo para pruebas reales.
 
