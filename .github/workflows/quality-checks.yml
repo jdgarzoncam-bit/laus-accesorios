@@ -19,6 +19,15 @@ jobs:
           node --check assets/motion.js
           node --check assets/config.js
           node --check backend/functions/api/index.mjs
+      - name: Bundle Neon Function dependencies
+        run: |
+          cd backend/functions/api
+          npm install --no-audit --no-fund
+          npx esbuild index.mjs --bundle --platform=node --format=esm --target=node24 --outfile=dist/index.mjs --banner:js="import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);"
+          mkdir -p ../../../function-bundle
+          cp dist/index.mjs ../../../function-bundle/index.mjs
+          cd ../../../function-bundle
+          zip -q ../laus-neon-function.zip index.mjs
       - name: Validate required static files
         run: |
           test -s index.html
