@@ -48,7 +48,8 @@ async function loadCatalog(){
   variants.forEach(v=>{if(!byVariants.has(v.product_id))byVariants.set(v.product_id,[]);byVariants.get(v.product_id).push(v)});
   const stockRows=val(3),promoRows=val(4)||[],promotionsByProduct=new Map();
   promoRows.forEach(row=>{if(!promotionsByProduct.has(row.product_id))promotionsByProduct.set(row.product_id,[]);if(row.promotions)promotionsByProduct.get(row.product_id).push({promotions:row.promotions})});
-  const categoryNames=new Map(categoryRows.map(c=>[c.id,c.name]));\n  products=rows.map(p=>normalize({...p,categories:{name:categoryNames.get(p.category_id)||"Otros"},product_images:byImages.get(p.id)||[],product_variants:byVariants.get(p.id)||[],product_promotions:promotionsByProduct.get(p.id)||[]},stockRows));
+  const categoryNames=new Map(categoryRows.map(c=>[c.id,c.name]));
+  products=rows.map(p=>normalize({...p,categories:{name:categoryNames.get(p.category_id)||"Otros"},product_images:byImages.get(p.id)||[],product_variants:byVariants.get(p.id)||[],product_promotions:promotionsByProduct.get(p.id)||[]},stockRows));
   collections=val(8)||[];
   if(activeCollectionId&&!collections.some(c=>c.id===activeCollectionId)){activeCollectionId=null;activeCollectionProducts=[];$("#active-collection-filter").hidden=true}
   cats=["Todos",...(categoryRows.length?categoryRows.map(x=>x.name):[...new Set(products.map(p=>p.category).filter(Boolean))])];
