@@ -61,7 +61,7 @@ El PDF de catálogo es la fuente para importar productos, imágenes, precios y r
 - RLS is enabled on all 15 public tables. Public read access is restricted to catalog data; authenticated writes require `public.is_laus_admin()`.
 - The former `lausapi` Neon Function has been deleted from QA. Only `lausimgupload` remains, dedicated exclusively to issuing temporary image-upload URLs.
 - Public sign-up is disabled on the QA branch. One administrator profile exists for the authorized store account. The private invitation flow for up to two additional administrators remains pending; no invitations have been issued.
-- Object Storage bucket: `laus-product-images` (`public_read`). The Neon Function `lausimgupload` issues five-minute signed upload URLs; its source now additionally checks `admin_profiles` before issuing a URL. This source change still needs deployment and endpoint verification.
+- Object Storage bucket: `laus-product-images` (`public_read`). The Neon Function `lausimgupload` is deployed (deployment 3, Node.js 24). Its current source validates the admin profile and signs S3 PUT requests using a corrected AWS SigV4 canonical request. The browser upload still needs a real end-to-end test from the published QA frontend.
 
 
 ## Integración actual
@@ -92,10 +92,18 @@ El workflow `Static QA package` valida JavaScript y empaqueta el frontend estát
 
 - GitHub default branch: `main`. Working branch: `feat/storefront-admin-foundation`; there is no Git branch named `qa`.
 - Neon QA: project `dawn-cherry-24723488`, branch `qa` (`br-broad-block-bc99rqv7`). The frontend config points to this QA branch.
-- Neon Auth: one user and one `admin_profiles` row exist for the authorized administrator. Public sign-up is disabled. Localhost is allowed; trusted origins are empty, so the production website origin must be configured before remote sign-in is validated.
+- Neon Auth: one user and one `admin_profiles` row exist for the authorized administrator. Public sign-up is disabled. Localhost is allowed and `https://jdgarzoncam-bit.github.io` is in the trusted-origin allowlist. The account's `emailVerified` flag is false, but email verification is not required by the current QA configuration.
 - The `customer_reviews` table exists; the Data API schema configuration was refreshed. The table currently contains no reviews.
-- QA data inventory: 7 visible categories; 0 products; 0 product image records; 0 published reviews; 0 delivered orders.
+- QA data inventory: 7 visible categories; 1 published product (`Arete`, reference `1100`); 0 product image records; 0 collections; 0 published reviews; 0 delivered orders. The product row remained after its initial image upload failed and can be recovered with the new retry action in the QA admin.
 - Object Storage bucket `laus-product-images` exists (`public_read`) but contains no objects.
 - PDF processing is currently heuristic: it renders each page, proposes rectangular crops, and requires the operator to review and manually enter product name, reference, price, and category. It does not extract prices/text or semantically identify product boundaries yet.
-- Other previously requested storefront details still need visual/functional verification against the reference images: animated 3D jewelry/cloud hero, product-card halo interaction, category transitions, clothing sizes/models, out-of-stock inquiry path, and the final image-led brand palette. WhatsApp checkout, promotion and collection modules exist in code, but end-to-end QA is pending.
-- The image-signer source now requires an `admin_profiles` row before issuing an upload URL. The deployed Neon Function has not yet been updated or tested with administrator/non-administrator sessions.
+- Brand/supplier collections are implemented in QA: assign a brand to products, select multiple existing products in the Collections module, sync and publish the brand collection, and filter the public catalog to that collection. The public collection display and end-to-end sync still need browser QA.
+- The admin sidebar tooltip stacking fix is in QA CSS. The product form, screenshot/PDF import, and CSV template now include brand/provider metadata.
+- The image signer now checks `admin_profiles` and uses a corrected AWS SigV4 canonical request; deployment 3 completed. A browser PUT and object appearance in storage remain to be verified.
+
+
+## GitHub Pages and current QA delivery
+
+- Expected project site URL: `https://jdgarzoncam-bit.github.io/laus-accesorios/`.
+- Neon Auth trusted origin: `https://jdgarzoncam-bit.github.io` (origin only; the repository path is not part of the browser origin).
+- The current changes remain on `feat/storefront-admin-foundation` and have not been merged or published to `main`.
