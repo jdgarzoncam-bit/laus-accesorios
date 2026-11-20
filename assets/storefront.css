@@ -132,3 +132,10 @@ linear-gradient(180deg,transparent 42%,#f3b6d5 72%,#d98eaf 100%)}
 .drawer{border-radius:22px 22px 0 0;top:auto;height:min(88vh,760px);width:100%;padding:22px;transform:translateY(110%)}
 .drawer.open{transform:translateY(0)}
 }
+
+/* The supplied hero artwork is used as the actual storefront cover. */
+.header{width:min(1280px,91.6%);margin:18px auto 0;border-radius:28px 28px 0 0}
+.hero-editorial{width:min(1280px,91.6%);height:auto;min-height:0;aspect-ratio:868/558;margin:0 auto;border-radius:0 0 34px 34px;background:#73c3dc url("./hero-reference.webp") center/100% 100% no-repeat;overflow:hidden}
+.hero-editorial:before{display:none}
+.hero-editorial .hero-title,.hero-editorial .hero-jewels,.hero-editorial .hero-bottom{display:none}
+@media(max-width:700px){.header{width:calc(100% - 20px);margin:8px auto 0;border-radius:22px 22px 0 0}.hero-editorial{width:calc(100% - 20px);height:auto;min-height:0;aspect-ratio:868/558;border-radius:0 0 24px 24px;background-size:100% 100%}.hero-editorial .hero-title,.hero-editorial .hero-jewels,.hero-editorial .hero-bottom{display:none}}
