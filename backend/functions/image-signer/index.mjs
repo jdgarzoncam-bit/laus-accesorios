@@ -16,7 +16,11 @@ const handler={async fetch(request){
   if(!allowed[contentType]||Number(body.size||0)>8*1024*1024)return json({error:"invalid_image"},400);
   const api=process.env.LAUS_DATA_API_URL;
   const token=auth.slice(7),parts=token.split(".");if(parts.length!==3)return json({error:"invalid_session"},401);let claims;try{claims=JSON.parse(atob(parts[1].replace(/-/g,"+").replace(/_/g,"/")))}catch{return json({error:"invalid_session"},401)}if(!claims.sub)return json({error:"login_required"},401);
-  const check=await fetch(api+"/products?select=id&limit=1",{headers:{authorization:auth,accept:"application/json"}});if(!check.ok)return json({error:"invalid_session"},401);
+  // A valid session is not enough: only a user with a LAU'S admin profile may upload images.
+  const adminCheck=await fetch(api+"/admin_profiles?select=user_id&user_id=eq."+encodeURIComponent(claims.sub)+"&limit=1",{headers:{authorization:auth,accept:"application/json"}});
+  if(!adminCheck.ok)return json({error:"invalid_session"},401);
+  const adminRows=await adminCheck.json();
+  if(!Array.isArray(adminRows)||adminRows.length!==1)return json({error:"admin_required"},403);
   const product=await fetch(api+"/products?id=eq."+encodeURIComponent(productId)+"&select=id",{headers:{authorization:auth,accept:"application/json"}});
   const productRows=await product.json();if(!product.ok||!productRows?.length)return json({error:"product_not_found"},404);
   const bucket="laus-product-images",key="products/"+productId+"/"+crypto.randomUUID()+"."+allowed[contentType];
