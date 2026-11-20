@@ -19,3 +19,26 @@
 .hero-bottom{position:absolute;bottom:22px;left:5%;right:5%;display:flex;align-items:center;justify-content:space-between;color:white;font-size:9px;letter-spacing:2px;font-weight:700;z-index:3}.hero-play{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:white;color:#4b3c45;font-size:19px;box-shadow:0 5px 18px #543c4d33}.catalog{scroll-margin-top:95px}
 @media(max-width:700px){.hero-editorial{min-height:510px;height:570px;margin:10px;border-radius:25px}.hero-title{top:16%;font-size:clamp(85px,23vw,145px)}.hero-jewels{inset:27% 3% 13%}.hero-jewels img{width:34%;height:55%;border-width:4px}.hero-jewels img:nth-child(2){height:75%}.hero-bottom{font-size:7px;letter-spacing:1px}.logo-brand img{width:95px}.admin-login-link{font-size:9px;padding:8px 10px}.header{gap:8px}.actions{gap:8px}}
 .social-proof{margin:0 4.2% 80px;padding:42px clamp(22px,6vw,80px);border:1px solid #f0e2e7;border-radius:25px;background:linear-gradient(115deg,#f9e9ef,#edf3f7);display:grid;grid-template-columns:.75fr 1.25fr;gap:35px;align-items:center}.proof-stat{display:grid;gap:8px}.proof-stat small,.proof-review>small{font-size:9px;letter-spacing:2px;color:#987d88;font-weight:700}.proof-stat strong{font:700 clamp(42px,7vw,76px) Sora;color:#7057a7}.proof-stat span{font-size:13px;color:#7b6c76}.proof-review{padding:25px 30px;background:#ffffffb8;border:1px solid #fff;border-radius:20px;min-height:210px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;animation:reviewFade .5s ease}.review-stars{color:#c78c9a;letter-spacing:4px;margin:13px 0}.proof-review blockquote{margin:0 0 16px;font:500 clamp(15px,2vw,20px)/1.55 Sora;color:#453b4c}.proof-review b{font-size:12px;color:#4d4054}.proof-review>span{font-size:10px;color:#988b9c;margin-top:4px}.review-dots{display:flex;gap:6px;margin-top:15px}.review-dots button{width:7px;height:7px;border:0;border-radius:10px;background:#d7cadb;padding:0}.review-dots button.active{width:20px;background:#765fb1}@keyframes reviewFade{from{opacity:.25;transform:translateY(8px)}to{opacity:1;transform:none}}@media(max-width:650px){.social-proof{grid-template-columns:1fr;margin:0 14px 55px;padding:25px 18px;gap:18px}.proof-review{padding:20px}}
+/* Testimonios reales: reemplazo de la sección Somos LAU'S */
+.testimonials{padding:88px 8% 100px;background:linear-gradient(135deg,#f8eff0 0%,#f5e7e9 48%,#f8f4f2 100%)}
+.testimonials-heading{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:34px}
+.testimonials-heading small{font-size:9px;letter-spacing:2px;font-weight:700;color:#967c83}
+.testimonials-heading h2{font:600 clamp(32px,4vw,48px) Sora;letter-spacing:-2px;margin:12px 0}
+.testimonials-heading h2 i{font:italic 400 Georgia;color:#c87f8d}
+.testimonials-heading p{max-width:470px;color:#897b7f;font-size:13px;line-height:1.8;margin:0}
+.delivered-proof{display:grid;gap:5px;text-align:right;flex-shrink:0}
+.delivered-proof strong{font:600 30px Sora;color:#bd7888}
+.delivered-proof span{font-size:10px;letter-spacing:.8px;color:#897b7f;text-transform:uppercase}
+.testimonial-card{position:relative;display:grid;grid-template-columns:130px 1fr;gap:28px;align-items:center;max-width:980px;min-height:270px;margin:auto;padding:42px 7%;overflow:hidden;border:1px solid #fff;background:#ffffffc9;border-radius:28px;box-shadow:0 22px 65px #8c596512}
+.testimonial-mark{font:160px/1 Georgia;color:#e4bdc5;align-self:start}
+.testimonial-content{position:relative;z-index:1}
+.testimonial-stars{color:#c98795;letter-spacing:5px;font-size:16px;margin-bottom:20px}
+.testimonial-content blockquote{margin:0;color:#40363a;font:italic 400 clamp(19px,2.3vw,27px)/1.55 Georgia,serif;max-width:700px}
+.testimonial-author{display:grid;gap:5px;margin-top:25px}
+.testimonial-author strong{font:600 12px Sora;color:#463b40}
+.testimonial-author span{font-size:10px;color:#9b858c}
+.testimonial-dots{display:flex;gap:7px;margin-top:22px}
+.testimonial-dots button{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:#dfc6cc}
+.testimonial-dots button.active{width:22px;border-radius:8px;background:#bd7888}
+.testimonial-sparkle{position:absolute;right:35px;top:25px;color:#e3b8c2;font-size:44px}
+@media(max-width:650px){.testimonials{padding:65px 6%}.testimonials-heading{align-items:flex-start;flex-direction:column}.delivered-proof{text-align:left}.testimonial-card{grid-template-columns:1fr;gap:0;padding:30px 25px;min-height:300px}.testimonial-mark{font-size:92px;height:65px}.testimonial-sparkle{right:22px;top:15px}}
