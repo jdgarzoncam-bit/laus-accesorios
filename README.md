@@ -61,7 +61,7 @@ El PDF de catálogo es la fuente para importar productos, imágenes, precios y r
 - RLS is enabled on all 15 public tables. Public read access is restricted to catalog data; authenticated writes require `public.is_laus_admin()`.
 - The former `lausapi` Neon Function has been deleted from QA. Only `lausimgupload` remains, dedicated exclusively to issuing temporary image-upload URLs.
 - Public sign-up is disabled on the QA branch. One administrator profile exists for the authorized store account.
-- Object Storage bucket: `laus-product-images` (`public_read`). The Neon Function `lausimgupload` issues five-minute signed upload URLs after checking the administrator session; storage credentials remain server-side.
+- Object Storage bucket: `laus-product-images` (`public_read`). The Neon Function `lausimgupload` issues five-minute signed upload URLs; its source now additionally checks `admin_profiles` before issuing a URL. This source change still needs deployment and endpoint verification.
 
 
 ## Integración actual
@@ -86,3 +86,15 @@ El PDF de catálogo es la fuente para importar productos, imágenes, precios y r
 ## QA y publicación
 
 El workflow `Static QA package` valida JavaScript y empaqueta el frontend estático. No instala ni empaqueta Neon Functions. La entrega se mantiene en `feat/storefront-admin-foundation`; no modificar `main` ni producción sin autorización expresa.
+
+
+## Current QA audit (2026-11-20)
+
+- GitHub default branch: `main`. Working branch: `feat/storefront-admin-foundation`; there is no Git branch named `qa`.
+- Neon QA: project `dawn-cherry-24723488`, branch `qa` (`br-broad-block-bc99rqv7`). The frontend config points to this QA branch.
+- Neon Auth: one user and one `admin_profiles` row exist for the authorized administrator. Public sign-up is disabled. Localhost is allowed; trusted origins are empty, so the production website origin must be configured before remote sign-in is validated.
+- The `customer_reviews` table exists; the Data API schema configuration was refreshed. The table currently contains no reviews.
+- QA data inventory: 7 visible categories; 0 products; 0 product image records; 0 published reviews; 0 delivered orders.
+- Object Storage bucket `laus-product-images` exists (`public_read`) but contains no objects.
+- PDF processing is currently heuristic: it renders each page, proposes rectangular crops, and requires the operator to review and manually enter product name, reference, price, and category. It does not extract prices/text or semantically identify product boundaries yet.
+- The image-signer source now requires an `admin_profiles` row before issuing an upload URL. The deployed Neon Function has not yet been updated or tested with administrator/non-administrator sessions.
