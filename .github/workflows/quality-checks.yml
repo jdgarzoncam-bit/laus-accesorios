@@ -18,7 +18,9 @@ jobs:
           node --check assets/admin.js
           node --check assets/motion.js
           node --check assets/config.js
+          node --check scripts/validate-static.mjs
           node --check backend/functions/image-signer/index.mjs
+          node scripts/validate-static.mjs
       - name: Validate required static files
         run: |
           test -s index.html
