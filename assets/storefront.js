@@ -19,16 +19,20 @@ function totalCart(){return cart.reduce((sum,x)=>sum+products.find(p=>p.id===x.i
 function drawCart(){const count=cart.reduce((s,x)=>s+x.qty,0);$("#cart-count").textContent=count;$("#cart-total").textContent=money(totalCart());$("#cart-lines").innerHTML=cart.length?cart.map(x=>{const p=products.find(y=>y.id===x.id),v=p.variants.find(y=>y.id===x.variant);return '<div class="drawer-line"><img src="'+esc(p.image)+'" alt=""><div><b>'+esc(p.name)+'</b><small>'+(v?esc(v.label)+" · ":"")+money(p.price)+'</small><div class="qty"><button data-qty="'+esc(p.id)+'::'+esc(x.variant)+'" data-delta="-1">−</button>'+x.qty+'<button data-qty="'+esc(p.id)+'::'+esc(x.variant)+'" data-delta="1">＋</button><button data-remove="'+esc(p.id)+'::'+esc(x.variant)+'">Eliminar</button></div></div></div>'}).join(""):'<p>Tu bolsita está esperando algo especial. ♡</p>';document.querySelectorAll("[data-qty]").forEach(b=>b.onclick=()=>{const [id,variant]=b.dataset.qty.split("::"),line=cart.find(x=>x.id===id&&x.variant===variant),p=products.find(x=>x.id===id),v=p.variants.find(x=>x.id===variant),max=v?v.stock:p.stock;if(Number(b.dataset.delta)>0&&line.qty>=max)return toast("Alcanzaste las unidades disponibles.");line.qty=Math.max(1,line.qty+Number(b.dataset.delta));drawCart()});document.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{cart=cart.filter(x=>x.id+"::"+x.variant!==b.dataset.remove);drawCart()})}
 let reviewIndex=0,reviewTimer=null;function renderSocialProof(reviews,count){const total=Number(count)||0;$("#delivered-count").textContent=total.toLocaleString("es-CO");if(!reviews.length){$("#review-text").textContent="Estamos preparando este espacio para compartir reseñas reales de quienes ya recibieron sus accesorios.";$("#review-author").textContent="Comunidad LAU’S";$("#review-product").textContent="Experiencias verificadas";$("#review-stars").textContent="★★★★★";$("#review-dots").innerHTML="";return}const draw=()=>{const r=reviews[reviewIndex%reviews.length];$("#review-text").textContent="“"+r.review_text+"”";$("#review-author").textContent=r.customer_name;$("#review-product").textContent=r.product_reference?"Producto "+r.product_reference:"Compra LAU’S";$("#review-stars").textContent="★".repeat(r.rating)+"☆".repeat(5-r.rating);$("#review-dots").innerHTML=reviews.map((_,i)=>'<button type="button" aria-label="Ver reseña '+(i+1)+'" data-review-dot="'+i+'" class="'+(i===reviewIndex?"active":"")+'"></button>').join("");document.querySelectorAll("[data-review-dot]").forEach(b=>b.onclick=()=>{reviewIndex=Number(b.dataset.reviewDot);draw()})};draw();if(reviewTimer)clearInterval(reviewTimer);if(reviews.length>1)reviewTimer=setInterval(()=>{reviewIndex=(reviewIndex+1)%reviews.length;draw()},6500)}
 async function loadCatalog(){
+ const empty=$("#empty");
  try{
   db=await window.LAUS_NEON_READY;
   if(!db)throw new Error("El cliente de Neon no está disponible.");
-  const [pr,cr]=await Promise.all([
-   db.from("products").select("*,categories(name),product_images(*),product_variants(*)").eq("status","published").order("published_at",{ascending:false}),
-   db.from("categories").select("id,name,sort_order").eq("is_visible",true).order("sort_order")
-  ]);
-  if(pr.error)throw new Error("Consulta de productos: "+pr.error.message);
-  if(cr.error)console.warn("LAU’S: no se pudieron cargar las categorías; se usarán las categorías de los productos.",cr.error);
+  // Consulta principal mínima: evita que una relación secundaria rota o una FK
+  // mal detectada por el Data API oculte todos los productos publicados.
+  const base=await db.from("products").select("*,categories(name)").eq("status","published").order("published_at",{ascending:false});
+  if(base.error)throw new Error("Consulta pública de productos: "+base.error.message+" ("+(base.error.code||"sin código")+")");
+  const rows=base.data||[];
+  let images=[],variants=[],categoryRows=[];
   const optional=await Promise.allSettled([
+   db.from("product_images").select("*").in("product_id",rows.map(p=>p.id)),
+   db.from("product_variants").select("*").in("product_id",rows.map(p=>p.id)),
+   db.from("categories").select("id,name,sort_order").eq("is_visible",true).order("sort_order"),
    db.rpc("get_public_product_stock"),
    db.from("product_promotions").select("product_id,promotions(*)"),
    db.from("store_settings").select("*").limit(1).maybeSingle(),
@@ -36,25 +40,27 @@ async function loadCatalog(){
    db.rpc("get_public_delivery_count"),
    db.from("collections").select("id,name,description,collection_type,collection_products(product_id)").eq("is_active",true).order("sort_order")
   ]);
-  const optionalValue=i=>optional[i].status==="fulfilled"&&!optional[i].value.error?optional[i].value.data:null;
-  optional.forEach((r,i)=>{if(r.status==="rejected"||(r.status==="fulfilled"&&r.value.error))console.warn("LAU’S: módulo complementario no disponible ("+["existencias","promociones","configuración","reseñas","entregas","colecciones"][i]+").",r.status==="rejected"?r.reason:r.value.error)});
-  const stockRows=optionalValue(0);
-  const promoRows=optionalValue(1)||[];
-  const promotionsByProduct=new Map();
+  const val=i=>optional[i].status==="fulfilled"&&!optional[i].value.error?optional[i].value.data:null;
+  optional.forEach((r,i)=>{if(r.status==="rejected"||(r.status==="fulfilled"&&r.value.error))console.warn("LAU’S: dato complementario no disponible ("+["fotografías","variantes","categorías","existencias","promociones","configuración","reseñas","entregas","colecciones"][i]+").",r.status==="rejected"?r.reason:r.value.error)});
+  images=val(0)||[];variants=val(1)||[];categoryRows=val(2)||[];
+  const byImages=new Map(),byVariants=new Map();
+  images.forEach(im=>{if(!byImages.has(im.product_id))byImages.set(im.product_id,[]);byImages.get(im.product_id).push(im)});
+  variants.forEach(v=>{if(!byVariants.has(v.product_id))byVariants.set(v.product_id,[]);byVariants.get(v.product_id).push(v)});
+  const stockRows=val(3),promoRows=val(4)||[],promotionsByProduct=new Map();
   promoRows.forEach(row=>{if(!promotionsByProduct.has(row.product_id))promotionsByProduct.set(row.product_id,[]);if(row.promotions)promotionsByProduct.get(row.product_id).push({promotions:row.promotions})});
-  products=(pr.data||[]).map(p=>normalize({...p,product_promotions:promotionsByProduct.get(p.id)||[]},stockRows));
-  collections=optionalValue(5)||[];
+  products=rows.map(p=>normalize({...p,product_images:byImages.get(p.id)||[],product_variants:byVariants.get(p.id)||[],product_promotions:promotionsByProduct.get(p.id)||[]},stockRows));
+  collections=val(8)||[];
   if(activeCollectionId&&!collections.some(c=>c.id===activeCollectionId)){activeCollectionId=null;activeCollectionProducts=[];$("#active-collection-filter").hidden=true}
-  const categoryRows=cr.data||[];
   cats=["Todos",...(categoryRows.length?categoryRows.map(x=>x.name):[...new Set(products.map(p=>p.category).filter(Boolean))])];
-  const settings=optionalValue(2);if(settings)storeSettings=settings;
-  renderSocialProof(optionalValue(3)||[],optionalValue(4)||0);
+  const settings=val(5);if(settings)storeSettings=settings;
+  renderSocialProof(val(6)||[],val(7)||0);
   if(storeSettings.store_name)document.title=storeSettings.store_name+" · Brilla a tu manera";
   drawCats();drawCollections();drawProducts();drawCart();track("store_visit");
+  if(empty){empty.hidden=true;empty.textContent="No encontramos productos. Prueba otra búsqueda."}
  }catch(e){
   console.error("LAU’S · error al cargar el catálogo:",e);
   products=[];collections=[];drawCats();drawProducts();
-  const empty=$("#empty");if(empty){empty.textContent="No fue posible cargar los productos. Detalle técnico: "+(e.message||"Error de conexión");empty.hidden=false}
+  if(empty){empty.textContent="No fue posible conectar con el catálogo. "+(e.message||"Comprueba la conexión e inténtalo nuevamente.");empty.hidden=false}
  }
 }
 $("#clear-collection")?.addEventListener("click",()=>{activeCollectionId=null;activeCollectionProducts=[];$("#active-collection-filter").hidden=true;category="Todos";page=1;drawCats();drawProducts()});$("#search").oninput=e=>{query=e.target.value;page=1;track("search");drawProducts()};$("#focus-search").onclick=()=>$("#search").focus();$("#menu-toggle").onclick=()=>$("#nav").classList.toggle("open");document.querySelectorAll("#nav [data-cat]").forEach(a=>a.onclick=()=>{category=a.dataset.cat;drawCats();drawProducts();$("#nav").classList.remove("open");scrollToCatalog()});$("#open-cart").onclick=()=>{$("#cart-drawer").classList.add("open");$("#cart-drawer").setAttribute("aria-hidden","false")};$("#close-cart").onclick=()=>{$("#cart-drawer").classList.remove("open");$("#cart-drawer").setAttribute("aria-hidden","true")};function getLeadSession(){let k=sessionStorage.getItem("laus-session");if(!k){k=crypto.randomUUID();sessionStorage.setItem("laus-session",k)}return k}
