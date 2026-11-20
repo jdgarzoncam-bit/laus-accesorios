@@ -58,3 +58,5 @@ body{background:linear-gradient(135deg,#d8dce9 0%,#f4dfe8 48%,#cbd6e9 100%)}
 
 .collection-sync #brand-products-select{min-width:min(300px,100%);min-height:94px;flex:1}
 .collection-sync #brand-products-select option{padding:5px}
+/* PDF: compacta la retícula según el número real de productos por categoría. */
+.product-grid.count-1{grid-template-columns:1fr;grid-template-rows:1fr}.product-grid.count-1 .product-card{width:100%;max-width:112mm;justify-self:center}.product-grid.count-1 .product-photo{height:120mm;flex-basis:120mm}.product-grid.count-2{grid-template-rows:1fr}.product-grid.count-3,.product-grid.count-4{grid-template-rows:repeat(2,minmax(0,1fr))}
