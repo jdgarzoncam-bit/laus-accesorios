@@ -111,10 +111,10 @@ El workflow `Static QA package` valida JavaScript y empaqueta el frontend estát
 
 ## Actualización de interfaz y catálogo (QA)
 
-- Portada pública rediseñada con cabecera blanca integrada, fondo de cielo azul y nubes rosas, composición editorial LAUS y contenedor redondeado.
-- Catálogo con tarjetas de producto; el detalle se abre en modal central y la bolsita lateral se abre al agregar un producto.
-- Guardado de productos por referencia mediante upsert atómico con conflicto resuelto en `reference`, evitando el error `products_reference_key` en altas repetidas.
-- Fotografías verificadas en QA: 2 objetos en `laus-product-images` y 2 registros correspondientes en `product_images`.
-- Descarga de piezas para Instagram sin precio; incluye marca LAU'S, colección/marca, dirección web y símbolo de WhatsApp.
-- PDF editorial: portada diseñada con la identidad de LAU'S y logo SVG; una página por producto, con colección, web y símbolo de WhatsApp, sin precios.
-- Los cambios permanecen en `feat/storefront-admin-foundation`; no se han publicado en `main` ni en GitHub Pages.
+- La portada usa la composición editorial con cielo azul, nubes rosadas y accesorios de joyería en la imagen de cabecera.
+- El catálogo conserva tarjetas por producto; el detalle se abre en modal y la bolsita se presenta como panel lateral.
+- El alta de productos usa una consulta explícita por referencia y actualiza el registro existente o inserta uno nuevo, en lugar de depender de un upsert que podía devolver `products_reference_key`.
+- La descarga para Instagram no incorpora precio. Incluye fotografía, marca LAU'S, colección/proveedor, URL pública y símbolo de WhatsApp.
+- El PDF tiene portada floral rosa con el logotipo LAU'S y una página por producto con fotografía, marca, colección, sitio y WhatsApp, sin precio.
+- La rama de trabajo es `feat/storefront-admin-foundation`; los cambios siguen separados de `main` y GitHub Pages.
+- Pendiente antes de publicación: pruebas visuales en navegador (desktop/móvil), carga real desde el formulario de alta y revisión del PDF en la impresión del navegador.
