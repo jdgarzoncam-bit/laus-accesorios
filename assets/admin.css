@@ -55,3 +55,6 @@ body{background:linear-gradient(135deg,#d8dce9 0%,#f4dfe8 48%,#cbd6e9 100%)}
 .collection-admin-row small{font-size:10px;color:#92889b}
 .collection-admin-row button{border:1px solid #e6ddec;background:#f8f5fb;color:#67528f;border-radius:10px;padding:8px 12px;font-size:10px}
 @media(max-width:650px){.nav[data-tooltip]:hover:after,.nav[data-tooltip]:focus-visible:after{left:50%;right:auto;top:auto;bottom:calc(100% + 9px);transform:translateX(-50%);z-index:10002}.rail{z-index:10000}.product-admin-row{grid-template-columns:1fr}.collection-admin-row{align-items:flex-start}}
+
+.collection-sync #brand-products-select{min-width:min(300px,100%);min-height:94px;flex:1}
+.collection-sync #brand-products-select option{padding:5px}
