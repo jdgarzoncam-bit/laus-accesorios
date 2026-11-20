@@ -70,3 +70,8 @@ footer{width:min(1280px,92%);margin:0 auto 24px;border:1px solid #f1e6eb;border-
  .testimonials{width:calc(100% - 20px);margin-bottom:34px;padding:40px 16px;border-radius:22px}
  footer{width:calc(100% - 20px);margin-bottom:12px;border-radius:18px}
 }
+
+
+/* Matching catalog and editorial heading typography */
+.catalog-head h2,.testimonials-heading h2,.campaign-heading h2{font-family:"Sora","DM Sans",sans-serif;font-weight:600;letter-spacing:-.055em}
+.catalog-head h2 i,.testimonials-heading h2 i,.campaign-heading h2 i{font-family:"Sora","DM Sans",sans-serif;font-style:italic;font-weight:500;letter-spacing:-.06em;color:#cf819a}
