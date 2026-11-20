@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024" role="img" aria-label="Joyería dorada, perlas y accesorios sobre nubes rosadas">
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#087bb6"/><stop offset=".48" stop-color="#62b8d7"/><stop offset=".72" stop-color="#f5c3dc"/><stop offset="1" stop-color="#e99ac5"/></linearGradient>
+ <linearGradient id="gold" x2=".9" y2="1"><stop stop-color="#fff1b8"/><stop offset=".25" stop-color="#c88936"/><stop offset=".5" stop-color="#ffe6a0"/><stop offset=".75" stop-color="#b7772f"/><stop offset="1" stop-color="#f9d987"/></linearGradient>
+ <linearGradient id="pearl" x2=".2" y2="1"><stop stop-color="#fff"/><stop offset=".5" stop-color="#f9e9ed"/><stop offset="1" stop-color="#c7aeb7"/></linearGradient>
+ <linearGradient id="pink" x2="0" y2="1"><stop stop-color="#ffd0e0"/><stop offset=".5" stop-color="#f28eb5"/><stop offset="1" stop-color="#d96899"/></linearGradient>
+ <radialGradient id="cloud"><stop stop-color="#fff" stop-opacity=".98"/><stop offset=".62" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+ <filter id="soft"><feGaussianBlur stdDeviation="22"/></filter>
+ <filter id="glow"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="shadow"><feGaussianBlur stdDeviation="12"/></filter>
+</defs>
+<rect width="1536" height="1024" fill="url(#sky)"/>
+<g filter="url(#soft)" opacity=".9" fill="url(#cloud)">
+ <ellipse cx="160" cy="140" rx="210" ry="85"/><ellipse cx="470" cy="110" rx="170" ry="70"/><ellipse cx="1280" cy="90" rx="240" ry="95"/><ellipse cx="1430" cy="380" rx="190" ry="65"/><ellipse cx="80" cy="410" rx="160" ry="65"/>
+</g>
+<g fill="#fff" opacity=".78">
+ <path d="M-30 590 Q35 520 105 555 Q155 480 230 548 Q310 520 340 610 Q250 650 160 635 Q55 665 -30 590Z"/>
+ <path d="M1170 550 Q1230 470 1310 520 Q1390 440 1460 510 Q1540 500 1580 590 Q1480 650 1380 620 Q1270 680 1170 550Z"/>
+</g>
+<g filter="url(#soft)" opacity=".96" fill="#f8b9d7">
+ <ellipse cx="180" cy="890" rx="350" ry="170"/><ellipse cx="580" cy="940" rx="420" ry="170"/><ellipse cx="1030" cy="930" rx="420" ry="190"/><ellipse cx="1450" cy="880" rx="320" ry="170"/>
+</g>
+<g fill="#ffd9e9" opacity=".72">
+ <path d="M0 810 Q90 720 210 800 Q310 730 410 820 Q510 780 580 900 Q400 980 230 920 Q100 970 0 900Z"/>
+ <path d="M720 830 Q820 730 920 820 Q1040 720 1150 820 Q1280 740 1390 850 Q1490 820 1570 910 Q1430 1000 1280 950 Q1090 1000 940 930 Q810 980 720 830Z"/>
+</g>
+<!-- floating pearls -->
+<g fill="url(#pearl)" stroke="#fff" stroke-width="3">
+ <circle cx="440" cy="490" r="12"/><circle cx="520" cy="390" r="9"/><circle cx="1040" cy="340" r="13"/><circle cx="1150" cy="680" r="10"/><circle cx="380" cy="760" r="9"/><circle cx="920" cy="800" r="12"/><circle cx="1230" cy="760" r="8"/>
+</g>
+<!-- crown -->
+<g transform="translate(525 330) rotate(-8 240 100)" fill="none" stroke="url(#gold)" stroke-width="12" stroke-linejoin="round">
+ <path d="M15 190 Q35 105 70 75 Q105 140 145 65 Q185 115 225 18 Q265 115 305 65 Q345 140 380 75 Q425 105 445 190 Q230 240 15 190Z"/>
+ <path d="M15 190 Q230 255 445 190" stroke-width="18"/>
+ <path d="M70 75 Q230 0 380 75" stroke-width="5"/>
+ <path d="M90 132 Q230 175 360 132" stroke-width="5"/>
+ <g fill="#fff5df" stroke-width="6"><circle cx="70" cy="75" r="13"/><circle cx="145" cy="65" r="13"/><circle cx="225" cy="18" r="18"/><circle cx="305" cy="65" r="13"/><circle cx="380" cy="75" r="13"/></g>
+ <path d="M225 0 l-22 -36 22 -35 22 35Z" fill="#fff" stroke-width="5"/>
+</g>
+<!-- pearl necklace curve -->
+<path d="M475 500 C550 640 760 690 940 540 C1020 470 1040 420 1080 390" fill="none" stroke="url(#gold)" stroke-width="7"/>
+<path d="M480 495 C560 640 760 685 940 535 C1020 465 1040 420 1080 390" fill="none" stroke="#fff0cb" stroke-width="3"/>
+<g fill="url(#pearl)" stroke="#fff" stroke-width="3">
+ <circle cx="485" cy="510" r="18"/><circle cx="520" cy="550" r="19"/><circle cx="560" cy="582" r="20"/><circle cx="605" cy="610" r="20"/><circle cx="652" cy="632" r="21"/><circle cx="700" cy="646" r="21"/><circle cx="750" cy="652" r="21"/><circle cx="800" cy="644" r="21"/><circle cx="848" cy="625" r="20"/><circle cx="895" cy="595" r="19"/><circle cx="936" cy="560" r="18"/><circle cx="970" cy="520" r="16"/>
+</g>
+<!-- cascading chains -->
+<g fill="none" stroke="url(#gold)" stroke-width="7">
+ <path d="M470 565 Q620 820 930 720 Q1080 665 1110 500"/>
+ <path d="M520 590 Q675 860 1000 760 Q1140 710 1170 540" stroke-width="5"/>
+ <path d="M565 620 Q700 790 880 810" stroke-width="4"/>
+</g>
+<!-- heart pendant -->
+<g transform="translate(465 720) rotate(-10)">
+ <path d="M0 0 C-65 -65 -140 15 0 135 C140 15 65 -65 0 0Z" fill="none" stroke="url(#gold)" stroke-width="13"/>
+ <path d="M0 17 C-45 -28 -95 20 0 100 C95 20 45 -28 0 17Z" fill="#f9c5d9" stroke="#fff0ca" stroke-width="5"/>
+</g>
+<g transform="translate(760 770) rotate(7)">
+ <path d="M0 0 C-58 -58 -125 14 0 120 C125 14 58 -58 0 0Z" fill="#f4a4c8" stroke="url(#gold)" stroke-width="13"/>
+ <path d="M0 16 C-38 -22 -80 17 0 87 C80 17 38 -22 0 16Z" fill="#ffe7f0" stroke="#fff" stroke-width="4"/>
+</g>
+<!-- earrings -->
+<g fill="none" stroke="url(#gold)" stroke-width="10">
+ <path d="M1110 470 C1110 520 1090 535 1085 570"/><path d="M1240 460 C1240 510 1260 540 1265 575"/>
+ <path d="M1085 570 C1015 635 1045 735 1100 735 C1155 735 1170 635 1085 570Z"/>
+ <path d="M1265 575 C1195 640 1225 740 1280 740 C1335 740 1350 640 1265 575Z"/>
+</g>
+<g fill="#fff8ed" stroke="url(#gold)" stroke-width="7">
+ <path d="M1100 600 C1050 650 1065 705 1100 705 C1135 705 1150 650 1100 600Z"/>
+ <path d="M1280 605 C1230 655 1245 710 1280 710 C1315 710 1330 655 1280 605Z"/>
+ <circle cx="1110" cy="485" r="15"/><circle cx="1240" cy="475" r="15"/>
+</g>
+<!-- satin bows -->
+<g transform="translate(1020 370) rotate(10)">
+ <path d="M0 35 C-95 -45 -145 -15 -100 55 L-15 70Z" fill="url(#pink)" stroke="url(#gold)" stroke-width="7"/>
+ <path d="M0 35 C90 -55 150 -5 95 65 L15 72Z" fill="url(#pink)" stroke="url(#gold)" stroke-width="7"/>
+ <path d="M-10 55 L-45 145 L10 105 L40 155 L30 65Z" fill="url(#pink)" stroke="url(#gold)" stroke-width="7"/>
+ <rect x="-20" y="25" width="42" height="52" rx="12" fill="url(#gold)"/>
+</g>
+<g transform="translate(930 800) rotate(-12) scale(.78)">
+ <path d="M0 35 C-95 -45 -145 -15 -100 55 L-15 70Z" fill="url(#pink)" stroke="url(#gold)" stroke-width="7"/>
+ <path d="M0 35 C90 -55 150 -5 95 65 L15 72Z" fill="url(#pink)" stroke="url(#gold)" stroke-width="7"/>
+ <path d="M-10 55 L-45 145 L10 105 L40 155 L30 65Z" fill="url(#pink)" stroke="url(#gold)" stroke-width="7"/>
+ <rect x="-20" y="25" width="42" height="52" rx="12" fill="url(#gold)"/>
+</g>
+<!-- sparkle stars -->
+<g fill="#fff5db" filter="url(#glow)">
+ <path d="M330 520 l8 24 24 8 -24 8 -8 24 -8 -24 -24 -8 24 -8Z"/><path d="M1190 350 l7 20 20 7 -20 7 -7 20 -7 -20 -20 -7 20 -7Z"/><path d="M890 890 l6 18 18 6 -18 6 -6 18 -6 -18 -18 -6 18 -6Z"/><path d="M1350 800 l6 17 17 6 -17 6 -6 17 -6 -17 -17 -6 17 -6Z"/>
+</g>
+</svg>
