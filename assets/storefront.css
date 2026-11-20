@@ -42,3 +42,9 @@
 .testimonial-dots button.active{width:22px;border-radius:8px;background:#bd7888}
 .testimonial-sparkle{position:absolute;right:35px;top:25px;color:#e3b8c2;font-size:44px}
 @media(max-width:650px){.testimonials{padding:65px 6%}.testimonials-heading{align-items:flex-start;flex-direction:column}.delivered-proof{text-align:left}.testimonial-card{grid-template-columns:1fr;gap:0;padding:30px 25px;min-height:300px}.testimonial-mark{font-size:92px;height:65px}.testimonial-sparkle{right:22px;top:15px}}
+
+/* Public brand and supplier collection navigation */
+.collection-view{display:inline-flex;align-items:center;justify-content:center;margin-top:12px;padding:10px 15px;border:0;border-radius:999px;background:#6d5ab0;color:#fff;font-size:11px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.collection-view:hover{transform:translateY(-2px);box-shadow:0 8px 20px #6d5ab033}
+.active-collection-filter{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:15px 0;padding:12px 15px;border:1px solid #eadfe8;border-radius:14px;background:#fff9fb;color:#68556f;font-size:12px}
+.active-collection-filter button{border:0;border-radius:999px;padding:8px 12px;background:#6d5ab0;color:#fff;font-size:11px;cursor:pointer}
