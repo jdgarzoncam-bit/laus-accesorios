@@ -41,3 +41,32 @@ footer{border-top:1px solid var(--line);padding:30px 7%;display:flex;align-items
 /* Typography consistency and scalable hero artwork */
 .hero-editorial{background-image:url('./laus-hero.svg');background-size:cover;background-position:center 54%}
 @media(max-width:640px){.hero-editorial{background-position:center 54%}}
+
+
+/* LAU'S editorial sky refresh — QA */
+:root{--laus-sky:#55a9d0;--laus-cloud:#fff8fc;--laus-blush:#f5bfd7}
+.announcement{font-family:"DM Sans",Arial,sans-serif;font-weight:600;letter-spacing:1.8px;background:#f7e9ee;color:#8b6879}
+.header nav{font-family:"DM Sans",Arial,sans-serif;font-weight:600;letter-spacing:.08em;font-size:11px}
+.header nav a{transition:color .2s ease,transform .2s ease}
+.header nav a:hover{transform:translateY(-1px)}
+.hero-editorial{position:relative;background-color:#62b3d4;background-image:url("./laus-hero.svg");background-size:cover;background-position:center 52%;border-radius:0 0 34px 34px;isolation:isolate}
+.hero-editorial:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:
+ radial-gradient(ellipse 22% 12% at 12% 12%,#fffdf5d9 0%,#fffdf57a 42%,transparent 100%),
+ radial-gradient(ellipse 20% 10% at 86% 27%,#fffdf5d9 0%,#fffdf57a 42%,transparent 100%),
+ radial-gradient(ellipse 30% 15% at 4% 58%,#fff 0%,#fff9 44%,transparent 100%),
+ radial-gradient(ellipse 27% 13% at 98% 62%,#fff 0%,#fff9 44%,transparent 100%),
+ linear-gradient(180deg,#2d93c01a 0%,transparent 45%,#f6b8d44a 100%)}
+.hero-editorial .hero-title{font-family:"Sora","DM Sans",sans-serif;font-size:clamp(96px,15vw,210px);letter-spacing:-.09em;top:8%;text-shadow:0 8px 26px #24536b55,0 1px 0 #ffffff55}
+.hero-bottom{font-family:"DM Sans",Arial,sans-serif}
+main{width:100%;max-width:1600px;margin:0 auto}
+.promo{width:min(1280px,92%);margin:0 auto 58px;border:1px solid #ffffff35;box-shadow:0 18px 48px #49303b12}
+.testimonials{width:min(1280px,92%);margin:0 auto 58px;padding:clamp(42px,6vw,80px) clamp(20px,5vw,72px);border:1px solid #f2e3e8;border-radius:30px;overflow:hidden}
+footer{width:min(1280px,92%);margin:0 auto 24px;border:1px solid #f1e6eb;border-radius:22px}
+@media(max-width:640px){
+ .announcement{min-height:26px;letter-spacing:1px}
+ .hero-editorial{background-position:center 52%;border-radius:0 0 24px 24px}
+ .hero-editorial .hero-title{top:11%;font-size:clamp(78px,19vw,132px);letter-spacing:-.085em}
+ .promo{width:calc(100% - 20px);margin-bottom:34px}
+ .testimonials{width:calc(100% - 20px);margin-bottom:34px;padding:40px 16px;border-radius:22px}
+ footer{width:calc(100% - 20px);margin-bottom:12px;border-radius:18px}
+}
