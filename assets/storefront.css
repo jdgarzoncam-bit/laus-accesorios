@@ -323,3 +323,15 @@ body{background:#8d8992}
 .drawer-foot>div{font-size:13px}
 @media(max-width:700px){.hero-editorial{height:540px;min-height:480px;margin:10px;border-radius:23px;background-position:center}.hero-title{top:13%;font-size:clamp(82px,23vw,145px)}.hero-jewels .hero-artwork{object-position:center 55%}.product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.product-card{padding:7px;border-radius:16px}.photo{height:clamp(150px,49vw,240px);border-radius:12px}.product-meta{display:grid;gap:4px}.product-meta strong{font-size:12px}.product-modal{grid-template-columns:1fr;max-height:92vh;border-radius:22px}.product-gallery{padding:12px}.modal-img{height:36vh;min-height:220px}.modal-copy{padding:20px 22px}.drawer{border-radius:22px 0 0 22px;padding:20px 16px}}
 @media(max-width:380px){.product-grid{grid-template-columns:1fr}.photo{height:300px}}
+
+/* Social-catalog product sheet: same visual language as the Instagram export */
+.product-page{padding:10mm;background:linear-gradient(145deg,#e4f1f5 0%,#fff7f9 48%,#efb7cd 100%)}
+.product-sheet{padding:8mm;border-radius:10mm;background:#fffdfd}
+.product-photo{height:184mm;flex-basis:184mm;border-radius:8mm;background:#f9edf2}
+.product-photo img{object-fit:cover}
+.product-copy .brand{font-size:14pt;letter-spacing:1.4px;color:#352b3b}
+.product-copy h2{font-size:23pt;color:#352b3b}
+.product-copy .category{font-size:10pt;letter-spacing:2px;color:#a16f86}
+.product-copy p{font-size:9pt;letter-spacing:2px;color:#a16f86}
+.product-copy footer{font-size:7pt;color:#9a8290}
+.product-copy footer .whatsapp{display:inline-flex;align-items:center;gap:4px;color:#219b5a;font-weight:700}
