@@ -107,3 +107,14 @@ El workflow `Static QA package` valida JavaScript y empaqueta el frontend estát
 - Expected project site URL: `https://jdgarzoncam-bit.github.io/laus-accesorios/`.
 - Neon Auth trusted origin: `https://jdgarzoncam-bit.github.io` (origin only; the repository path is not part of the browser origin).
 - The current changes remain on `feat/storefront-admin-foundation` and have not been merged or published to `main`.
+
+
+## Actualización de interfaz y catálogo (QA)
+
+- Portada pública rediseñada con cabecera blanca integrada, fondo de cielo azul y nubes rosas, composición editorial LAUS y contenedor redondeado.
+- Catálogo con tarjetas de producto; el detalle se abre en modal central y la bolsita lateral se abre al agregar un producto.
+- Guardado de productos por referencia mediante upsert atómico con conflicto resuelto en `reference`, evitando el error `products_reference_key` en altas repetidas.
+- Fotografías verificadas en QA: 2 objetos en `laus-product-images` y 2 registros correspondientes en `product_images`.
+- Descarga de piezas para Instagram sin precio; incluye marca LAU'S, colección/marca, dirección web y símbolo de WhatsApp.
+- PDF editorial: portada diseñada con la identidad de LAU'S y logo SVG; una página por producto, con colección, web y símbolo de WhatsApp, sin precios.
+- Los cambios permanecen en `feat/storefront-admin-foundation`; no se han publicado en `main` ni en GitHub Pages.
