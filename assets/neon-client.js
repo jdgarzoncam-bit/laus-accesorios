@@ -3,7 +3,7 @@ import { createInternalNeonAuth } from "https://esm.sh/@neondatabase/neon-js@lat
 const config=window.LAUS_CONFIG||{};
 if(!config.dataApiUrl||!config.authUrl) throw new Error("Falta la configuración de Neon para LAUS.");
 const auth=createInternalNeonAuth(config.authUrl);
-const client=createClient({auth:{url:config.authUrl},dataApi:{url:config.dataApiUrl}});
+const client=createClient({auth:{url:config.authUrl,allowAnonymous:true},dataApi:{url:config.dataApiUrl}});
 window.LAUS_GET_JWT=()=>auth.getJWTToken();
 window.LAUS_NEON=client;
 window.LAUS_NEON_READY=Promise.resolve(client);
