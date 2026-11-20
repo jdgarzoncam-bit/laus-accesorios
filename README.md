@@ -125,6 +125,6 @@ El workflow `Static QA package` valida JavaScript y empaqueta el frontend estát
 - La captura local mostraba una versión distinta de la rama QA: el DOM del navegador local referencia `hero-reference.webp` y `laus-logo.svg` sin el prefijo `assets/`; en el repositorio los recursos viven dentro de `assets/`. Esto confirma una carpeta local/ZIP desactualizada o con rutas relativas distintas.
 - La rama actual usa `./assets/laus-hero.svg`; se reforzó la portada con una imagen de fondo de respaldo, centrado explícito y dimensiones responsivas. Se actualizó el parámetro de caché del CSS.
 - La carga del escaparate separa productos/categorías (servicios esenciales) de reseñas, contador, ajustes y colecciones (opcionales), para que un fallo secundario no tumbe todo el catálogo.
-- La consulta pública de inventario se limita a `quantity_on_hand`. Se agregó y aplicó en Neon QA la política `inventory_public_stock_read`, condicionada a que el producto esté publicado.
+- La consulta pública de inventario se limita a `quantity_on_hand`. Se agregó y aplicó en Neon QA la función `get_public_product_stock()`, que expone únicamente ID de producto/variante y cantidad disponible, sin abrir lectura pública de la tabla de inventario.
 - Se agregó `scripts/validate-static.mjs` y se incorporó al flujo de GitHub Actions para detectar rutas HTML/CSS inexistentes, llaves CSS desbalanceadas e IDs duplicados.
 - No se modificó `main`; los cambios y la política de inventario se aplicaron únicamente a QA.
