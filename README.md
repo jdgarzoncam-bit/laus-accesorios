@@ -60,7 +60,7 @@ El PDF de catálogo es la fuente para importar productos, imágenes, precios y r
 - Exposed schema: `public`; anonymous role: `anonymous`; broad default grants disabled.
 - RLS is enabled on all 15 public tables. Public read access is restricted to catalog data; authenticated writes require `public.is_laus_admin()`.
 - The former `lausapi` Neon Function has been deleted from QA. Only `lausimgupload` remains, dedicated exclusively to issuing temporary image-upload URLs.
-- Public sign-up is disabled on the QA branch. One administrator profile exists for the authorized store account.
+- Public sign-up is disabled on the QA branch. One administrator profile exists for the authorized store account. The private invitation flow for up to two additional administrators remains pending; no invitations have been issued.
 - Object Storage bucket: `laus-product-images` (`public_read`). The Neon Function `lausimgupload` issues five-minute signed upload URLs; its source now additionally checks `admin_profiles` before issuing a URL. This source change still needs deployment and endpoint verification.
 
 
@@ -97,4 +97,5 @@ El workflow `Static QA package` valida JavaScript y empaqueta el frontend estát
 - QA data inventory: 7 visible categories; 0 products; 0 product image records; 0 published reviews; 0 delivered orders.
 - Object Storage bucket `laus-product-images` exists (`public_read`) but contains no objects.
 - PDF processing is currently heuristic: it renders each page, proposes rectangular crops, and requires the operator to review and manually enter product name, reference, price, and category. It does not extract prices/text or semantically identify product boundaries yet.
+- Other previously requested storefront details still need visual/functional verification against the reference images: animated 3D jewelry/cloud hero, product-card halo interaction, category transitions, clothing sizes/models, out-of-stock inquiry path, and the final image-led brand palette. WhatsApp checkout, promotion and collection modules exist in code, but end-to-end QA is pending.
 - The image-signer source now requires an `admin_profiles` row before issuing an upload URL. The deployed Neon Function has not yet been updated or tested with administrator/non-administrator sessions.
