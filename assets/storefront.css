@@ -83,3 +83,17 @@ footer{width:min(1280px,92%);margin:0 auto 24px;border:1px solid #f1e6eb;border-
 @keyframes lausImpactDraw{to{stroke-dashoffset:0}}@keyframes lausImpactFade{to{opacity:1}}@keyframes lausImpactPoint{to{opacity:1}}
 @media(max-width:700px){.impact-panel{grid-template-columns:1fr;width:calc(100% - 20px);margin-bottom:34px;padding:30px 22px;border-radius:24px;gap:22px}.impact-copy h2{font-size:32px}.impact-stats{gap:24px}.impact-stats strong{font-size:24px}.impact-visual{min-height:190px;padding:12px}}
 @media(prefers-reduced-motion:reduce){.impact-line,.impact-area,.impact-points circle{animation:none;opacity:1;stroke-dashoffset:0}}
+
+/* LAUS Dreamy Coquette Hero — isolated storefront refresh */
+.header{width:min(1580px,calc(100% - 20px));height:56px;margin:10px auto 0;padding:0 clamp(18px,4vw,58px);border:0;border-radius:36px 36px 0 0;box-shadow:none}
+.header nav{font-family:"DM Sans",Arial,sans-serif;font-size:12px;font-weight:500;letter-spacing:.025em;gap:clamp(20px,3.5vw,48px)}
+.header nav a{color:#353035}.header .actions{gap:18px}.header .icon{font-size:21px}.header .bag{background:transparent;padding:5px;color:#30292d;font-size:20px}
+.hero-editorial{width:min(1580px,calc(100% - 20px));height:clamp(500px,61vw,760px);min-height:500px;margin:0 auto;overflow:hidden;border-radius:0 0 36px 36px;position:relative;isolation:isolate;background-color:#46a8d2;background-image:linear-gradient(180deg,rgba(15,111,160,.02),rgba(255,255,255,.02) 42%,rgba(246,188,218,.12)),url("./laus-dreamy-hero.webp");background-size:cover;background-position:center 50%;box-shadow:none}
+.hero-editorial:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(8,108,157,.02),transparent 47%,rgba(244,181,215,.12))}
+.hero-editorial:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,transparent 50%,rgba(243,190,219,.12))}
+.hero-editorial .hero-title{position:absolute;z-index:2;top:7%;left:0;right:0;margin:0 auto;width:max-content;max-width:95%;color:transparent;background:linear-gradient(180deg,#fff 0%,#fff 44%,rgba(245,251,255,.96) 63%,rgba(214,239,250,.62) 100%);-webkit-background-clip:text;background-clip:text;font-family:"Manrope","DM Sans",Arial,sans-serif;font-size:clamp(116px,19vw,270px);font-weight:800;line-height:.86;letter-spacing:-.105em;text-shadow:0 4px 24px rgba(23,87,125,.12);pointer-events:none}
+.hero-bottom{z-index:4;bottom:18px;left:5%;right:5%;color:rgba(255,255,255,.92);font:600 clamp(7px,.65vw,10px)/1 "DM Sans",Arial,sans-serif;letter-spacing:1.5px}
+.hero-play{width:38px;height:38px;flex:0 0 38px;border:0;background:rgba(255,255,255,.96);color:#9e83a2;font-size:12px;box-shadow:0 2px 12px rgba(99,65,94,.12)}
+.benefits{border-radius:0 0 22px 22px}
+@media(max-width:640px){.header{width:calc(100% - 20px);height:58px;margin-top:10px;border-radius:24px 24px 0 0}.hero-editorial{width:calc(100% - 20px);height:clamp(520px,145vw,650px);min-height:500px;border-radius:0 0 26px 26px;background-position:54% center}.hero-editorial .hero-title{top:10%;font-size:clamp(100px,22vw,156px);letter-spacing:-.105em}.hero-bottom{bottom:14px;left:4%;right:4%;font-size:6px;letter-spacing:.65px}.hero-play{width:34px;height:34px;flex-basis:34px}}
+@media(max-width:380px){.hero-editorial{height:490px;min-height:490px}.hero-editorial .hero-title{font-size:clamp(88px,22vw,118px)}}
