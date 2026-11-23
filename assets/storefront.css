@@ -241,6 +241,6 @@ nSjBEbDeCZaM72bAB0lP1oc1YaYbdgL31zpFQ7qKX7igAAA=");background-size:cover;backgro
 /* LAU'S redes: iconos de marca diferenciados */
 .social-brand-icon{width:54px;height:54px;flex:0 0 54px;display:grid;place-items:center;border-radius:50%;background:#fff;border:1px solid #f1dce5;box-shadow:0 4px 14px #79566912}
 .social-brand-icon svg{width:27px;height:27px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.instagram-brand{color:#c65b91;background:linear-gradient(145deg,#fff7fb,#fce8f1)}.instagram-brand svg{stroke:url(#lausInstagramGradient)}.instagram-brand .icon-dot{fill:#c65b91;stroke:none}
+.instagram-brand{color:#c65b91;background:linear-gradient(145deg,#fff7fb,#fce8f1)}.instagram-brand svg{stroke:currentColor}.instagram-brand .icon-dot{fill:#c65b91;stroke:none}
 .facebook-brand{color:#1877f2;background:#f1f6ff}.facebook-brand svg{width:25px;height:25px;fill:currentColor;stroke:none}
 .whatsapp-brand{color:#20a765;background:#effaf4}.whatsapp-brand svg{width:28px;height:28px;stroke:currentColor}
