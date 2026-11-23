@@ -1,0 +1,9 @@
+{
+  "name": "laus-accesorios-static",
+  "private": true,
+  "version": "1.0.0",
+  "description": "LAU'S Accesorios - native HTML CSS JavaScript frontend",
+  "scripts": {
+    "check": "node --check assets/storefront.js && node --check assets/admin.js"
+  }
+}
