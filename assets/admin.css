@@ -94,3 +94,6 @@ header small,.heading small,.card>small{font-size:10px}
 
 .collection-assignment{display:grid;grid-template-columns:minmax(140px,1fr) minmax(220px,2fr) auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid #f0e7ec}.collection-assignment select{width:100%;min-width:0;padding:10px;border:1px solid #e8dce4;border-radius:10px;background:#fff}.collection-assignment button{white-space:nowrap}
 @media(max-width:700px){.collection-assignment{grid-template-columns:1fr}.collection-assignment button{width:100%}}
+
+.catalog-assignment{display:grid;grid-template-columns:minmax(130px,1fr) minmax(220px,2fr) auto;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid #f0e7ec}.catalog-assignment select{width:100%;min-width:0;padding:10px;border:1px solid #e8dce4;border-radius:10px;background:#fff}.catalog-assignment button{white-space:nowrap}
+@media(max-width:700px){.catalog-assignment{grid-template-columns:1fr}.catalog-assignment button{width:100%}}
