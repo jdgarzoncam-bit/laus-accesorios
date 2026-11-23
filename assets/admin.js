@@ -116,13 +116,14 @@ async function createCatalogPDF(){
  const settings=$("#store-settings-form");
  const phone=settings?.elements.whatsapp_number?.value||"302 743 3621";
  const instagram=settings?.elements.instagram_handle?.value||"@lau.s_accesorios";
+ const currentYear=new Date().getFullYear();
  const grouped=new Map();
  rows.forEach(p=>{const category=p.categories?.name||"Sin categoría";if(!grouped.has(category))grouped.set(category,[]);grouped.get(category).push(p)});
  const order=new Map(categories.map((c,i)=>[c.name,i]));
  const names=[...grouped.keys()].sort((a,b)=>(order.get(a)??999)-(order.get(b)??999)||a.localeCompare(b,"es"));
  const pageGroups=[];
  names.forEach(category=>{const list=grouped.get(category);for(let i=0;i<list.length;i+=6)pageGroups.push({category,items:list.slice(i,i+6),part:Math.floor(i/6)+1,total:Math.ceil(list.length/6)})});
- const cover="<section class='cover'><div class='cover-orbit orbit-a'></div><div class='cover-orbit orbit-b'></div><small class='cover-kicker'>LAU'S ACCESORIOS PRESENTA</small><h1>CATÁLOGO</h1><div class='cover-rule'></div><p class='cover-season'>COLECCIÓN 2026</p><div class='cover-logo'><img src='"+assetBase+"assets/laus-logo.svg' alt='LAU’S Accesorios'></div><p class='cover-tagline'>ELEGANCIA EN CADA DETALLE</p><div class='cover-contact'><span>"+esc(instagram)+"</span><span>WhatsApp · "+esc(phone)+"</span></div><small class='cover-note'>JOYAS · ACCESORIOS · ESTILO</small></section>";
+ const cover="<section class='cover'><div class='cover-orbit orbit-a'></div><div class='cover-orbit orbit-b'></div><small class='cover-kicker'>LAU'S ACCESORIOS PRESENTA</small><h1>CATÁLOGO</h1><div class='cover-rule'></div><p class='cover-season'>COLECCIÓN "+currentYear+"</p><div class='cover-logo'><img src='"+assetBase+"assets/laus-logo.svg' alt='LAU’S Accesorios'></div><p class='cover-tagline'>ELEGANCIA EN CADA DETALLE</p><div class='cover-contact'><span>"+esc(instagram)+"</span><span>WhatsApp · "+esc(phone)+"</span></div><small class='cover-note'>JOYAS · ACCESORIOS · ESTILO</small></section>";
  let pageNo=0;
  const pages=pageGroups.map(group=>{
   pageNo++;
